@@ -1,4 +1,7 @@
 export const role = 'admin';
+// export const role = 'teachers';
+// export const role = 'parents';
+// export const role = 'students';
 
 export const teachersData = [
     {

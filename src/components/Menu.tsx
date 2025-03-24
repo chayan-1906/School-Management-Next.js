@@ -1,5 +1,6 @@
-import Link from "next/link";
 import Image from "next/image";
+import {role} from "@/lib/data";
+import Link from "next/link";
 
 const menuItems = [
     {
@@ -122,12 +123,17 @@ const Menu = () => {
             {menuItems.map(({items, title}) => (
                 <div key={title} className={'flex flex-col gap-2'}>
                     <span className={'hidden lg:block text-gray-400 font-light my-4'}>{title}</span>
-                    {items.map(({icon, label, href, visible}) => (
-                        <Link key={label} href={href} className={'flex items-center justify-center lg:justify-start  gap-4 text-gray-500 py-2 md:px-2 rounded-md'}>
-                            <Image src={icon} alt={label} height={20} width={20}/>
-                            <span className={'hidden lg:block'}>{label}</span>
-                        </Link>
-                    ))}
+                    {items.map(({icon, label, href, visible}) => {
+                            if (visible.includes(role)) {
+                                return (
+                                    <Link key={label} href={href} className={'flex items-center justify-center lg:justify-start  gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight'}>
+                                        <Image src={icon} alt={label} height={20} width={20}/>
+                                        <span className={'hidden lg:block'}>{label}</span>
+                                    </Link>
+                                )
+                            }
+                        }
+                    )}
                 </div>
             ))}
         </div>

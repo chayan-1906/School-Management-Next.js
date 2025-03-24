@@ -3,16 +3,18 @@ import UserCard from "../../../components/UserCard";
 import CountChart from "../../../components/CountChart";
 import AttendanceChart from "../../../components/AttendanceChart";
 import FinanceChart from "../../../components/FinanceChart";
+import EventCalendar from "../../../components/EventCalendar";
+import Announcements from "../../../components/Announcements";
 
 function AdminPage() {
     return (
         <div className={'flex flex-col p-4 gap-4 md:flex-row'}>
             {/** LEFT */}
-            <div className={'flex flex-col gap-8 w-full lg:w-2/3'}>
+            <div className={'flex flex-col gap-4 w-full lg:w-2/3'}>
                 {/** USER CARDS */}
                 <div className={'flex gap-4 justify-between flex-wrap'}>
-                    <UserCard type={'student'}/>
-                    <UserCard type={'teacher'}/>
+                    <UserCard type={'students'}/>
+                    <UserCard type={'teachers'}/>
                     <UserCard type={'parent'}/>
                     <UserCard type={'staff'}/>
                 </div>
@@ -37,8 +39,9 @@ function AdminPage() {
             </div>
 
             {/** RIGHT */}
-            <div className={'w-full lg:w-1/3'}>
-
+            <div className={'flex flex-col gap-8 w-full lg:w-1/3'}>
+                <EventCalendar/>
+                <Announcements/>
             </div>
         </div>
     );

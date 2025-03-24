@@ -68,7 +68,7 @@ const data = [
 
 const FinanceChart = () => {
     return (
-        <div className={'bg-white rounded-xl h-full w-full p-4'}>
+        <div className={'bg-white rounded-xl h-full w-full p-4 shadow-2xl shadow-gray-300'}>
             {/** TITLE */}
             <div className={'flex justify-between items-center'}>
                 <h1 className={'text-lg font-semibold'}>Finance</h1>
@@ -77,8 +77,8 @@ const FinanceChart = () => {
             </div>
 
             {/** CHART */}
-            <ResponsiveContainer height={'90%'} width={'100%'}>
-                <LineChart width={500} height={300} data={data} margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+            <ResponsiveContainer height={'75%'} width={'100%'}>
+                <LineChart width={500} height={300} data={data} margin={{top: 5, right: 30, left: 20, bottom: 16}}>
                     <CartesianGrid strokeDasharray={'3 3'} stroke={'#DDD'}/>
                     <XAxis dataKey={'name'} axisLine={false} tick={{fill: '#D1D5DB'}} tickLine={false} tickMargin={20}/>
                     <YAxis axisLine={false} tick={{fill: '#D1D5DB'}} tickLine={false}/>
@@ -91,12 +91,12 @@ const FinanceChart = () => {
 
             {/** BOTTOM */}
             <div className={'flex justify-center gap-16'}>
-                <div className={'flex flex-col gap-1'}>
+                <div className={'flex flex-col items-center gap-1'}>
                     <div className={'size-5 bg-lamaSky rounded-full'}/>
                     <h1 className={'font-bold'}>1,234</h1>
                     <h2 className={'text-xs text-gray-300'}>Boys (55%)</h2>
                 </div>
-                <div className={'flex flex-col gap-1'}>
+                <div className={'flex flex-col items-center gap-1'}>
                     <div className={'size-5 bg-lamaYellow rounded-full'}/>
                     <h1 className={'font-bold'}>1,234</h1>
                     <h2 className={'text-xs text-gray-300'}>Girls (45%)</h2>

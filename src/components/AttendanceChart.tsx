@@ -33,7 +33,7 @@ const data = [
 
 const AttendanceChart = () => {
     return (
-        <div className={'bg-white rounded-xl h-full w-full p-4'}>
+        <div className={'bg-white rounded-xl h-full w-full p-4 shadow-2xl shadow-gray-300'}>
             {/** TITLE */}
             <div className={'flex justify-between items-center'}>
                 <h1 className={'text-lg font-semibold'}>Attendance</h1>
@@ -42,7 +42,7 @@ const AttendanceChart = () => {
             </div>
 
             {/** CHART */}
-            <ResponsiveContainer height={'90%'} width={'100%'}>
+            <ResponsiveContainer height={'75%'} width={'100%'}>
                 <BarChart width={500} height={300} data={data} barSize={20}>
                     <CartesianGrid strokeDasharray={'3 3'} vertical={false} stroke={'#DDD'}/>
                     <XAxis dataKey={'name'} axisLine={false} tick={{fill: '#D1D5DB'}} tickLine={false}/>
@@ -56,12 +56,12 @@ const AttendanceChart = () => {
 
             {/** BOTTOM */}
             <div className={'flex justify-center gap-16'}>
-                <div className={'flex flex-col gap-1'}>
+                <div className={'flex flex-col items-center gap-1'}>
                     <div className={'size-5 bg-lamaSky rounded-full'}/>
                     <h1 className={'font-bold'}>1,234</h1>
                     <h2 className={'text-xs text-gray-300'}>Boys (55%)</h2>
                 </div>
-                <div className={'flex flex-col gap-1'}>
+                <div className={'flex flex-col items-center gap-1'}>
                     <div className={'size-5 bg-lamaYellow rounded-full'}/>
                     <h1 className={'font-bold'}>1,234</h1>
                     <h2 className={'text-xs text-gray-300'}>Girls (45%)</h2>
