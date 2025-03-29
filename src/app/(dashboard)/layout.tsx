@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import {routes} from "../../lib/routes";
+import {routes} from "@/lib/routes";
 import Image from "next/image";
 import Menu from "../../components/Menu";
 import Navbar from "../../components/Navbar";

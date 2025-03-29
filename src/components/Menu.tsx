@@ -1,6 +1,7 @@
 import Image from "next/image";
 import {role} from "@/lib/data";
 import Link from "next/link";
+import {routes} from "@/lib/routes";
 
 const menuItems = [
     {
@@ -15,79 +16,79 @@ const menuItems = [
             {
                 icon: '/teacher.png',
                 label: 'Teachers',
-                href: '/list/teachers',
+                href: routes.teachersPath,
                 visible: ['admin', 'teacher'],
             },
             {
                 icon: '/student.png',
                 label: 'Students',
-                href: '/list/students',
+                href: routes.studentsPath,
                 visible: ['admin', 'teacher'],
             },
             {
                 icon: '/parent.png',
                 label: 'Parents',
-                href: '/list/parents',
+                href: routes.parentsPath,
                 visible: ['admin', 'teacher'],
             },
             {
                 icon: '/subject.png',
                 label: 'Subjects',
-                href: '/list/subjects',
+                href: routes.subjectsPath,
                 visible: ['admin'],
             },
             {
                 icon: '/class.png',
                 label: 'Classes',
-                href: '/list/classes',
+                href: routes.classesPath,
                 visible: ['admin', 'teacher'],
             },
             {
                 icon: '/lesson.png',
                 label: 'Lessons',
-                href: '/list/lessons',
+                href: routes.lessonsPath,
                 visible: ['admin', 'teacher'],
             },
             {
                 icon: '/exam.png',
                 label: 'Exams',
-                href: '/list/exams',
+                href: routes.examsPath,
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {
                 icon: '/assignment.png',
                 label: 'Assignments',
-                href: '/list/assignments',
+                href: routes.assignmentsPath,
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {
                 icon: '/result.png',
                 label: 'Results',
-                href: '/list/results',
+                href: routes.resultsPath,
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {
                 icon: '/attendance.png',
                 label: 'Attendance',
-                href: '/list/attendance',
+                href: routes.attendancePath,
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {
                 icon: '/calendar.png',
                 label: 'Events',
-                href: '/list/events',
+                href: routes.eventsPath,
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {
                 icon: '/message.png',
                 label: 'Messages',
-                href: '/list/messages',
+                href: routes.messagesPath,
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {
                 icon: '/announcement.png',
                 label: 'Announcements',
-                href: '/list/announcements',
+                href: routes.announcementsPath,
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
         ],

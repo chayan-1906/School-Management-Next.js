@@ -37,7 +37,6 @@ const AttendanceChart = () => {
             {/** TITLE */}
             <div className={'flex justify-between items-center'}>
                 <h1 className={'text-lg font-semibold'}>Attendance</h1>
-                {/*<Image src={'/moreDark.png'} alt={'students'} height={20} width={20}/>*/}
                 <FiMoreHorizontal size={24}/>
             </div>
 
