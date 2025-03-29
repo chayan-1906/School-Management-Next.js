@@ -8,18 +8,18 @@ import Image from "next/image";
 import Link from "next/link";
 import {routes} from "@/lib/routes";
 import {cn} from "@/lib/utils";
-import {role, teachersData, WEB_CLIENT_URL} from "@/lib/data";
+import {role, studentsData, WEB_CLIENT_URL} from "@/lib/data";
 import {FaTrashCan} from "react-icons/fa6";
 
-type Teacher = {
+type Student = {
     id: number;
-    teacherId: string;
+    studentId: string;
     name: string;
     email?: string;
     photo: string;
     phone: string;
-    subjects: string[];
-    classes: string[];
+    cgpa: number;
+    class: string;
     address?: string;
 }
 
@@ -29,18 +29,18 @@ const columns = [
         accessor: 'info',
     },
     {
-        header: 'Teacher ID',
-        accessor: 'teacherId',
+        header: 'Student ID',
+        accessor: 'studentId',
         className: 'hidden md:table-cell',
     },
     {
-        header: 'Subjects',
-        accessor: 'subjects',
+        header: 'Class',
+        accessor: 'class',
         className: 'hidden md:table-cell',
     },
     {
-        header: 'Classes',
-        accessor: 'classes',
+        header: 'CGPA',
+        accessor: 'cgpa',
         className: 'hidden md:table-cell',
     },
     {
@@ -62,7 +62,7 @@ const columns = [
 export async function generateMetadata() {
     console.log('generateMetadata called');
 
-    const title = 'Teachers';
+    const title = 'Students';
     const description = '';
     // const icons = (await parent).icons ?? {};
 
@@ -89,8 +89,8 @@ export async function generateMetadata() {
     return metadata;
 }
 
-function TeacherPage() {
-    const renderRow = ({id, teacherId, name, photo, email, phone, address, classes, subjects}: Teacher) => {
+function StudentPage() {
+    const renderRow = ({id, studentId, name, photo, email, phone, address, cgpa, class: studentOfClass}: Student) => {
         return (
             <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
                 <td className={'flex items-center gap-4 p-4'}>
@@ -100,9 +100,9 @@ function TeacherPage() {
                         <h4 className={'text-xs text-gray-500'}>{email}</h4>
                     </div>
                 </td>
-                <td className={'hidden md:table-cell'}>{teacherId}</td>
-                <td className={'hidden md:table-cell'}>{subjects.join(', ')}</td>
-                <td className={'hidden md:table-cell'}>{classes.join(', ')}</td>
+                <td className={'hidden md:table-cell'}>{studentId}</td>
+                <td className={'hidden md:table-cell'}>{studentOfClass}</td>
+                <td className={'hidden md:table-cell'}>{cgpa}</td>
                 <td className={'hidden lg:table-cell'}>{phone}</td>
                 <td className={'hidden lg:table-cell'}>{address}</td>
                 <td>
@@ -128,7 +128,7 @@ function TeacherPage() {
         <div className={'flex-1 rounded-md p-4 m-4 mt-0'}>
             {/** TOP */}
             <div className={'flex items-center justify-between'}>
-                <h1 className={'hidden md:block text-lg font-semibold'}>All Teachers</h1>
+                <h1 className={'hidden md:block text-lg font-semibold'}>All Students</h1>
                 <div className={'flex flex-col md:flex-row w-full md:w-auto items-center gap-4'}>
                     <TableSearch/>
                     <div className={'flex items-center gap-4 self-end'}>
@@ -138,7 +138,7 @@ function TeacherPage() {
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        <button className={cn('size-8 items-center justify-center rounded-full bg-lamaYellow', role === 'admin' ? 'flex' : 'hidden')}>
+                        <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaPlus size={12}/>
                         </button>
                     </div>
@@ -146,7 +146,7 @@ function TeacherPage() {
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={teachersData} renderRow={renderRow}/>
+            <Table columns={columns} data={studentsData} renderRow={renderRow}/>
 
             {/** PAGINATION */}
             <div className={''}>
@@ -156,4 +156,4 @@ function TeacherPage() {
     );
 }
 
-export default TeacherPage;
+export default StudentPage;
