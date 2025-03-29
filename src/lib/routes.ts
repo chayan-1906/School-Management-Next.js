@@ -14,5 +14,6 @@ export const routes = {
     messagesPath: '/list/messages',
     announcementsPath: '/list/announcements',
 
-    teacherPath: (id: number) => `/list/teachers/${id}`
+    teacherPath: (id: number) => `/list/teachers/${id}`,
+    studentPath: (id: number) => `/list/students/${id}`,
 };

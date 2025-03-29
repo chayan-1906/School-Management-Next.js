@@ -107,7 +107,7 @@ function StudentPage() {
                 <td className={'hidden lg:table-cell'}>{address}</td>
                 <td>
                     <div className={'flex items-center gap-2'}>
-                        <Link href={routes.teacherPath(id)}>
+                        <Link href={routes.studentPath(id)}>
                             {/** VIEW */}
                             <button className={'flex items-center justify-center size-7 rounded-full bg-lamaSky'}>
                                 <FaEye color={'white'}/>
