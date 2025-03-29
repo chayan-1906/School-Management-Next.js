@@ -12,7 +12,7 @@ export const routes = {
     attendancePath: '/list/attendance',
     eventsPath: '/list/events',
     messagesPath: '/list/messages',
-    announcementsPath: '/list/announcementsPath',
+    announcementsPath: '/list/announcements',
 
     teacherPath: (id: number) => `/list/teachers/${id}`
 };
