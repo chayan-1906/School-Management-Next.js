@@ -10,6 +10,7 @@ import {cn} from "@/lib/utils";
 import {assignmentsData, resultsData, role, WEB_CLIENT_URL} from "@/lib/data";
 import {FaTrashCan} from "react-icons/fa6";
 import {MdEdit} from "react-icons/md";
+import FormModal from "@/components/FormModal";
 
 type Result = {
     id: number;
@@ -99,17 +100,15 @@ function ResultsPage() {
                 <td className={'hidden md:table-cell'}>{date}</td>
                 <td>
                     <div className={'flex items-center gap-2'}>
-                        <Link href={routes.teacherPath(id)}>
-                            {/** VIEW */}
-                            <button className={'flex items-center justify-center size-7 rounded-full bg-lamaSky'}>
-                                <MdEdit color={'white'}/>
-                            </button>
-                        </Link>
+                        {role === 'admin' && (
+                            <>
+                                {/** UPDATE */}
+                                <FormModal table={'result'} type={'update'} id={id}/>
 
-                        {/** DELETE */}
-                        <button className={cn('flex items-center justify-center size-7 rounded-full bg-lamaPurple', role === 'admin' ? 'flex' : 'hidden')}>
-                            <FaTrashCan color={'white'}/>
-                        </button>
+                                {/** DELETE */}
+                                <FormModal table={'result'} type={'delete'} id={id}/>
+                            </>
+                        )}
                     </div>
                 </td>
             </tr>
@@ -130,9 +129,9 @@ function ResultsPage() {
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
-                            <FaPlus size={12}/>
-                        </button>
+                        {role === 'admin' && (
+                            <FormModal table={'result'} type={'create'}/>
+                        )}
                     </div>
                 </div>
             </div>

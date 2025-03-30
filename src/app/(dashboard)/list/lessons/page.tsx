@@ -1,15 +1,11 @@
 import React from "react";
 import TableSearch from "@/components/TableSearch";
-import {FaFilter, FaPlus} from "react-icons/fa";
+import {FaFilter} from "react-icons/fa";
 import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
-import Link from "next/link";
-import {routes} from "@/lib/routes";
-import {cn} from "@/lib/utils";
 import {lessonsData, role, WEB_CLIENT_URL} from "@/lib/data";
-import {FaTrashCan} from "react-icons/fa6";
-import {MdEdit} from "react-icons/md";
+import FormModal from "@/components/FormModal";
 
 type Lesson = {
     id: number;
@@ -77,17 +73,15 @@ function LessonsPage() {
                 <td className={'hidden md:table-cell'}>{teacher}</td>
                 <td>
                     <div className={'flex items-center gap-2'}>
-                        <Link href={routes.teacherPath(id)}>
-                            {/** VIEW */}
-                            <button className={'flex items-center justify-center size-7 rounded-full bg-lamaSky'}>
-                                <MdEdit color={'white'}/>
-                            </button>
-                        </Link>
+                        {role === 'admin' && (
+                            <>
+                                {/** UPDATE */}
+                                <FormModal table={'lesson'} type={'update'} id={id}/>
 
-                        {/** DELETE */}
-                        <button className={cn('flex items-center justify-center size-7 rounded-full bg-lamaPurple', role === 'admin' ? 'flex' : 'hidden')}>
-                            <FaTrashCan color={'white'}/>
-                        </button>
+                                {/** DELETE */}
+                                <FormModal table={'lesson'} type={'delete'} id={id}/>
+                            </>
+                        )}
                     </div>
                 </td>
             </tr>
@@ -108,9 +102,9 @@ function LessonsPage() {
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
-                            <FaPlus size={12}/>
-                        </button>
+                        {role === 'admin' && (
+                            <FormModal table={'lesson'} type={'create'}/>
+                        )}
                     </div>
                 </div>
             </div>

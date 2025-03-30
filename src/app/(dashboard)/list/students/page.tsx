@@ -10,6 +10,7 @@ import {routes} from "@/lib/routes";
 import {cn} from "@/lib/utils";
 import {role, studentsData, WEB_CLIENT_URL} from "@/lib/data";
 import {FaTrashCan} from "react-icons/fa6";
+import FormModal from "@/components/FormModal";
 
 type Student = {
     id: number;
@@ -89,7 +90,7 @@ export async function generateMetadata() {
     return metadata;
 }
 
-function StudentPage() {
+function StudentsPage() {
     const renderRow = ({id, studentId, name, photo, email, phone, address, cgpa, class: studentOfClass}: Student) => {
         return (
             <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
@@ -115,9 +116,9 @@ function StudentPage() {
                         </Link>
 
                         {/** DELETE */}
-                        <button className={cn('flex items-center justify-center size-7 rounded-full bg-lamaPurple', role === 'admin' ? 'flex' : 'hidden')}>
-                            <FaTrashCan color={'white'}/>
-                        </button>
+                        {role === 'admin' && (
+                            <FormModal table={'student'} type={'delete'} id={id}/>
+                        )}
                     </div>
                 </td>
             </tr>
@@ -138,9 +139,12 @@ function StudentPage() {
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
+                        {/*<button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaPlus size={12}/>
-                        </button>
+                        </button>*/}
+                        {role === 'admin' && (
+                            <FormModal table={'student'} type={'create'}/>
+                        )}
                     </div>
                 </div>
             </div>
@@ -156,4 +160,4 @@ function StudentPage() {
     );
 }
 
-export default StudentPage;
+export default StudentsPage;

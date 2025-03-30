@@ -10,6 +10,7 @@ import {cn} from "@/lib/utils";
 import {role, subjectsData, WEB_CLIENT_URL} from "@/lib/data";
 import {FaTrashCan} from "react-icons/fa6";
 import {MdEdit} from "react-icons/md";
+import FormModal from "@/components/FormModal";
 
 type Subject = {
     id: number;
@@ -63,7 +64,7 @@ export async function generateMetadata() {
     return metadata;
 }
 
-function SubjectPage() {
+function SubjectsPage() {
     const renderRow = ({id, name, teachers}: Subject) => {
         return (
             <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
@@ -73,17 +74,15 @@ function SubjectPage() {
                 <td className={'hidden sm:table-cell'}>{teachers.join(', ')}</td>
                 <td>
                     <div className={'flex items-center gap-2'}>
-                        <Link href={routes.teacherPath(id)}>
-                            {/** VIEW */}
-                            <button className={'flex items-center justify-center size-7 rounded-full bg-lamaSky'}>
-                                <MdEdit color={'white'}/>
-                            </button>
-                        </Link>
+                        {role === 'admin' && (
+                            <>
+                                {/** UPDATE */}
+                                <FormModal table={'subject'} type={'update'} id={id}/>
 
-                        {/** DELETE */}
-                        <button className={cn('flex items-center justify-center size-7 rounded-full bg-lamaPurple', role === 'admin' ? 'flex' : 'hidden')}>
-                            <FaTrashCan color={'white'}/>
-                        </button>
+                                {/** DELETE */}
+                                <FormModal table={'subject'} type={'delete'} id={id}/>
+                            </>
+                        )}
                     </div>
                 </td>
             </tr>
@@ -104,9 +103,9 @@ function SubjectPage() {
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
-                            <FaPlus size={12}/>
-                        </button>
+                        {role === 'admin' && (
+                            <FormModal table={'subject'} type={'create'}/>
+                        )}
                     </div>
                 </div>
             </div>
@@ -122,4 +121,4 @@ function SubjectPage() {
     );
 }
 
-export default SubjectPage;
+export default SubjectsPage;

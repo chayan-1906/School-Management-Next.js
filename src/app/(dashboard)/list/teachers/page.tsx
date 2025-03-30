@@ -1,15 +1,14 @@
 import React from "react";
 import TableSearch from "@/components/TableSearch";
-import {FaEye, FaFilter, FaPlus} from "react-icons/fa";
+import {FaEye, FaFilter} from "react-icons/fa";
 import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import Image from "next/image";
 import Link from "next/link";
 import {routes} from "@/lib/routes";
-import {cn} from "@/lib/utils";
 import {role, teachersData, WEB_CLIENT_URL} from "@/lib/data";
-import {FaTrashCan} from "react-icons/fa6";
+import FormModal from "@/components/FormModal";
 
 type Teacher = {
     id: number;
@@ -89,7 +88,7 @@ export async function generateMetadata() {
     return metadata;
 }
 
-function TeacherPage() {
+function TeachersPage() {
     const renderRow = ({id, teacherId, name, photo, email, phone, address, classes, subjects}: Teacher) => {
         return (
             <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
@@ -115,9 +114,9 @@ function TeacherPage() {
                         </Link>
 
                         {/** DELETE */}
-                        <button className={cn('flex items-center justify-center size-7 rounded-full bg-lamaPurple', role === 'admin' ? 'flex' : 'hidden')}>
-                            <FaTrashCan color={'white'}/>
-                        </button>
+                        {role === 'admin' && (
+                            <FormModal table={'teacher'} type={'delete'} id={id}/>
+                        )}
                     </div>
                 </td>
             </tr>
@@ -138,9 +137,12 @@ function TeacherPage() {
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        <button className={cn('size-8 items-center justify-center rounded-full bg-lamaYellow', role === 'admin' ? 'flex' : 'hidden')}>
+                        {/*<button className={cn('size-8 items-center justify-center rounded-full bg-lamaYellow', role === 'admin' ? 'flex' : 'hidden')}>
                             <FaPlus size={12}/>
-                        </button>
+                        </button>*/}
+                        {role === 'admin' && (
+                            <FormModal table={'teacher'} type={'create'}/>
+                        )}
                     </div>
                 </div>
             </div>
@@ -156,4 +158,4 @@ function TeacherPage() {
     );
 }
 
-export default TeacherPage;
+export default TeachersPage;

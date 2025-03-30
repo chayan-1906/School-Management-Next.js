@@ -10,6 +10,7 @@ import {cn} from "@/lib/utils";
 import {parentsData, role, WEB_CLIENT_URL} from "@/lib/data";
 import {FaTrashCan} from "react-icons/fa6";
 import {MdEdit} from "react-icons/md";
+import FormModal from "@/components/FormModal";
 
 type Parent = {
     id: number;
@@ -76,7 +77,7 @@ export async function generateMetadata() {
     return metadata;
 }
 
-function ParentPage() {
+function ParentsPage() {
     const renderRow = ({id, name, students, email, phone, address}: Parent) => {
         return (
             <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
@@ -91,17 +92,15 @@ function ParentPage() {
                 <td className={'hidden md:table-cell'}>{address}</td>
                 <td>
                     <div className={'flex items-center gap-2'}>
-                        <Link href={routes.teacherPath(id)}>
-                            {/** VIEW */}
-                            <button className={'flex items-center justify-center size-7 rounded-full bg-lamaSky'}>
-                                <MdEdit color={'white'}/>
-                            </button>
-                        </Link>
+                        {role === 'admin' && (
+                            <>
+                                {/** UPDATE */}
+                                <FormModal table={'parent'} type={'update'} id={id}/>
 
-                        {/** DELETE */}
-                        <button className={cn('flex items-center justify-center size-7 rounded-full bg-lamaPurple', role === 'admin' ? 'flex' : 'hidden')}>
-                            <FaTrashCan color={'white'}/>
-                        </button>
+                                {/** DELETE */}
+                                <FormModal table={'parent'} type={'delete'} id={id}/>
+                            </>
+                        )}
                     </div>
                 </td>
             </tr>
@@ -122,9 +121,12 @@ function ParentPage() {
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
+                        {/*<button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaPlus size={12}/>
-                        </button>
+                        </button>*/}
+                        {role === 'admin' && (
+                            <FormModal table={'parent'} type={'create'}/>
+                        )}
                     </div>
                 </div>
             </div>
@@ -140,4 +142,4 @@ function ParentPage() {
     );
 }
 
-export default ParentPage;
+export default ParentsPage;
