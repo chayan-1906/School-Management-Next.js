@@ -2,11 +2,31 @@
 
 import {cn} from "@/lib/utils";
 import {FaTrashCan} from "react-icons/fa6";
-import React, {useCallback, useState} from "react";
+import React, {JSX, useCallback, useState} from "react";
 import {FaPlus} from "react-icons/fa";
 import {MdEdit} from "react-icons/md";
 import {IoClose} from "react-icons/io5";
-import TeacherForm from "@/components/forms/TeacherForm";
+import dynamic from "next/dynamic";
+
+const TeacherForm = dynamic(() => import('@/components/forms/TeacherForm'), {
+    loading: () => <h1>Loading...</h1>
+});
+
+const StudentForm = dynamic(() => import('@/components/forms/StudentForm'), {
+    loading: () => <h1>Loading...</h1>
+});
+
+/*const ClassForm = dynamic(() => import('@/components/forms/ClassForm'), {
+    loading: () => <h1>Loading...</h1>
+});*/
+
+const forms: {
+    [key: string]: (type: 'create' | 'update', data?: any) => JSX.Element
+} = {
+    teacher: (type, data) => <TeacherForm type={type} data={data}/>,
+    student: (type, data) => <StudentForm type={type} data={data}/>,
+    // class: (type, data) => <ClassForm type={type} data={data}/>,
+}
 
 function FormModal({table, type, data, id}: {
     table: 'teacher' | 'student' | 'parent' | 'subject' | 'class' | 'lesson' | 'exam' | 'assignment' | 'result' | 'attendance' | 'event' | 'announcement';
@@ -47,9 +67,9 @@ function FormModal({table, type, data, id}: {
                 <span className={'text-center font-medium'}>All data will be lost; Are you sure you want to delete this {table}?</span>
                 <button className={'bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center'}>Delete</button>
             </form>
-        ) : (
-            <TeacherForm type={'create'}/>
-        );
+        ) : (type === 'create' || type === 'update') ? (
+            forms[table](type, data)
+        ) : 'Form not found';
     }
 
     return (

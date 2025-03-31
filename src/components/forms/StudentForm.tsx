@@ -5,7 +5,7 @@ import InputField from "@/components/InputField";
 import React from "react";
 import Image from "next/image";
 
-const teacherSchema = z.object({
+const studentSchema = z.object({
     username: z.string()
         .min(3, {message: 'Username must be of at least 3 characters long!'})
         .max(20, {message: 'Username must be of at most 20 characters long!'}),
@@ -21,11 +21,11 @@ const teacherSchema = z.object({
     img: z.instanceof(File, {message: 'Image is required!'}),
 });
 
-type Inputs = z.infer<typeof teacherSchema>;
+type Inputs = z.infer<typeof studentSchema>;
 
-function TeacherForm({type, data}: { type: 'create' | 'update'; data?: any; }) {
+function StudentForm({type, data}: { type: 'create' | 'update'; data?: any; }) {
     const {register, handleSubmit, formState: {errors}} = useForm<Inputs>({
-        resolver: zodResolver(teacherSchema),
+        resolver: zodResolver(studentSchema),
     });
 
     const onSubmit = handleSubmit((data) => {
@@ -34,7 +34,7 @@ function TeacherForm({type, data}: { type: 'create' | 'update'; data?: any; }) {
 
     return (
         <form className={'flex flex-col gap-8'} onSubmit={onSubmit}>
-            <h1 className={'text-xl font-semibold'}>Create a new teacher</h1>
+            <h1 className={'text-xl font-semibold'}>Create a new student</h1>
 
             {/** AUTHENTICATION INFO */}
             <div className={'flex items-center gap-4'}>
@@ -103,4 +103,4 @@ function TeacherForm({type, data}: { type: 'create' | 'update'; data?: any; }) {
     );
 }
 
-export default TeacherForm;
+export default StudentForm;
