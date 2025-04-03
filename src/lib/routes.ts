@@ -1,6 +1,20 @@
+import {isStringInvalid} from "@/lib/utils";
+
 export const routes = {
     homePath: '/',
-    teachersPath: '/list/teachers',
+    teachersPath: ({classId}: { classId?: number }) => {
+        let url = `/list/teachers`;
+        let queryParams = [];
+
+        if (!isStringInvalid(classId)) {
+            queryParams.push(`classId=${classId}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+        return url;
+    },
     studentsPath: '/list/students',
     parentsPath: '/list/parents',
     subjectsPath: '/list/subjects',
@@ -14,6 +28,14 @@ export const routes = {
     messagesPath: '/list/messages',
     announcementsPath: '/list/announcements',
 
-    teacherPath: (id: number) => `/list/teachers/${id}`,
-    studentPath: (id: number) => `/list/students/${id}`,
+    teacherPath: (id: number | string, {page}: { page?: number }) => {
+        let url = `/list/teachers/${id}`;
+        let queryParams = [];
+
+        if (!isStringInvalid(page)) {
+            queryParams.push(`page=${page}`);
+        }
+        return url;
+    },
+    studentPath: (id: number | string) => `/list/students/${id}`,
 };

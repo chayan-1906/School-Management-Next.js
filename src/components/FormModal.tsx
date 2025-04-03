@@ -32,7 +32,7 @@ function FormModal({table, type, data, id}: {
     table: 'teacher' | 'student' | 'parent' | 'subject' | 'class' | 'lesson' | 'exam' | 'assignment' | 'result' | 'attendance' | 'event' | 'announcement';
     type: 'create' | 'update' | 'delete';
     data?: any;
-    id?: number;
+    id?: number | string;
 }) {
     const size = type === 'create' ? 'size-8' : 'size-7';
     const bgColor = type === 'create' ? 'bg-lamaYellow' : type === 'update' ? 'bg-lamaSky' : 'bg-lamaRedLight';

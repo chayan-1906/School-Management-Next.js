@@ -100,7 +100,7 @@ function SingleStudentPage() {
                     <h1 className={'text-xl font-semibold'}>Shortcuts</h1>
                     <div className={'flex flex-wrap mt-4 gap-4 text-xs text-gray-500'}>
                         <Link href={routes.classesPath} className={'p-3 rounded-md bg-lamaSkyLight'}>Student&apos;s Classes</Link>
-                        <Link href={routes.studentsPath} className={'p-3 rounded-md bg-lamaPurpleLight'}>Student&apos;s Teachers</Link>
+                        <Link href={routes.teachersPath({classId: 2})} className={'p-3 rounded-md bg-lamaPurpleLight'}>Student&apos;s Teachers</Link>
                         <Link href={routes.lessonsPath} className={'p-3 rounded-md bg-lamaYellowLight'}>Student&apos;s Lessons</Link>
                         <Link href={routes.examsPath} className={'p-3 rounded-md bg-pink-50'}>Student&apos;s Exams</Link>
                         <Link href={routes.assignmentsPath} className={'p-3 rounded-md bg-lamaSkyLight'}>Student&apos;s Assignments</Link>
