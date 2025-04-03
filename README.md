@@ -52,6 +52,13 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.
 Your app is ready to be deployed!
 
+### Prisma Commands
+    npx prisma migrate dev --name init
+    npx prisma studio
+    npx prisma generate
+    npx prisma db seed
+    npx prisma migrate reset
+
 ## [Live Site (Vercel)](https://oakwood-academy.vercel.app/)
 
 # Dependencies
