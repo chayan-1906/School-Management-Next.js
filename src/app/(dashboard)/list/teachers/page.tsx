@@ -124,18 +124,20 @@ async function TeachersPage({searchParams}: { searchParams: Promise<Record<strin
     const query: Prisma.TeacherWhereInput = {};
 
     if (queryParams) {
-        for (const [key, value] of Object.entries(queryParams)) {
+        for (let [key, value] of Object.entries(queryParams)) {
             if (value !== undefined) {
+                value = Array.isArray(value) ? value[0] : value;
+
                 switch (key) {
                     case 'classId':
                         query.lessons = {
                             some: {
-                                classId: Number(value),
+                                classId: isNumeric(value) ? Number(value) : undefined,
                             },
                         };
                         break;
                     case 'search':
-                        query.name = {contains: Array.isArray(value) ? value[0] : value, mode: 'insensitive'};
+                        query.name = {contains: value, mode: 'insensitive'};
                         break;
                     default:
                         break;
@@ -186,9 +188,7 @@ async function TeachersPage({searchParams}: { searchParams: Promise<Record<strin
 
             {/** PAGINATION */}
             <div className={''}>
-                {/*{typeof window !== 'undefined' && (*/}
                 <Pagination page={page} count={teachersCount}/>
-                {/*)}*/}
             </div>
         </div>
     );

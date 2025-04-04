@@ -1,28 +1,20 @@
 import React from "react";
 import TableSearch from "@/components/TableSearch";
-import {FaEye, FaFilter, FaPlus} from "react-icons/fa";
+import {FaEye, FaFilter} from "react-icons/fa";
 import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import Image from "next/image";
 import Link from "next/link";
 import {routes} from "@/lib/routes";
-import {cn} from "@/lib/utils";
-import {role, studentsData, WEB_CLIENT_URL} from "@/lib/data";
-import {FaTrashCan} from "react-icons/fa6";
+import {isNumeric} from "@/lib/utils";
+import {role, WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
+import {Class, Grade, Prisma, Student} from "@prisma/client";
+import prisma from "@/lib/prisma";
+import {ITEMS_PER_PAGE} from "@/lib/config";
 
-type Student = {
-    id: number;
-    studentId: string;
-    name: string;
-    email?: string;
-    photo: string;
-    phone: string;
-    cgpa: number;
-    class: string;
-    address?: string;
-}
+type StudentList = Student & { class: Class } & {grade: Grade};
 
 const columns = [
     {
@@ -90,40 +82,82 @@ export async function generateMetadata() {
     return metadata;
 }
 
-function StudentsPage() {
-    const renderRow = ({id, studentId, name, photo, email, phone, address, cgpa, class: studentOfClass}: Student) => {
-        return (
-            <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
-                <td className={'flex items-center gap-4 p-4'}>
-                    <Image src={photo} alt={name} height={40} width={40} className={'md:hidden xl:block size-10 rounded-full object-cover'}/>
-                    <div className={'flex flex-col'}>
-                        <h3 className={'font-semibold'}>{name}</h3>
-                        <h4 className={'text-xs text-gray-500'}>{email}</h4>
-                    </div>
-                </td>
-                <td className={'hidden md:table-cell'}>{studentId}</td>
-                <td className={'hidden md:table-cell'}>{studentOfClass}</td>
-                <td className={'hidden md:table-cell'}>{cgpa}</td>
-                <td className={'hidden lg:table-cell'}>{phone}</td>
-                <td className={'hidden lg:table-cell'}>{address}</td>
-                <td>
-                    <div className={'flex items-center gap-2'}>
-                        <Link href={routes.studentPath(id)}>
-                            {/** VIEW */}
-                            <button className={'flex items-center justify-center size-7 rounded-full bg-lamaSky'}>
-                                <FaEye color={'white'}/>
-                            </button>
-                        </Link>
+const renderRow = ({id, username, name, img, email, phone, address, class: studentOfClass, grade}: StudentList) => {
+    return (
+        <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
+            <td className={'flex items-center gap-4 p-4'}>
+                <Image src={img || '/noAvatar.png'} alt={name} height={40} width={40} className={'md:hidden xl:block size-10 rounded-full object-cover'}/>
+                <div className={'flex flex-col'}>
+                    <h3 className={'font-semibold'}>{name}</h3>
+                    <h4 className={'text-xs text-gray-500'}>{email}</h4>
+                </div>
+            </td>
+            <td className={'hidden md:table-cell'}>{username}</td>
+            <td className={'hidden md:table-cell'}>{studentOfClass.name}</td>
+            <td className={'hidden lg:table-cell'}>{grade.level}</td>
+            <td className={'hidden lg:table-cell'}>{phone}</td>
+            <td className={'hidden lg:table-cell'}>{address}</td>
+            <td>
+                <div className={'flex items-center gap-2'}>
+                    <Link href={routes.studentPath(id)}>
+                        {/** VIEW */}
+                        <button className={'flex items-center justify-center size-7 rounded-full bg-lamaSky'}>
+                            <FaEye color={'white'}/>
+                        </button>
+                    </Link>
 
-                        {/** DELETE */}
-                        {role === 'admin' && (
-                            <FormModal table={'student'} type={'delete'} id={id}/>
-                        )}
-                    </div>
-                </td>
-            </tr>
-        );
+                    {/** DELETE */}
+                    {role === 'admin' && (
+                        <FormModal table={'student'} type={'delete'} id={id}/>
+                    )}
+                </div>
+            </td>
+        </tr>
+    );
+}
+
+async function StudentsPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {page: rawPage, ...queryParams} = await searchParams || {};
+    const page = rawPage ? Number(rawPage) : 1;
+
+    /** URL PARAMS CONDITION */
+    const query: Prisma.StudentWhereInput = {};
+
+    if (queryParams) {
+        for (const [key, value] of Object.entries(queryParams)) {
+            if (value !== undefined) {
+                switch (key) {
+                    case 'teacherId':
+                        query.class = {
+                            lessons: {
+                                some: {
+                                    teacherId: Array.isArray(value) ? value[0] : value,
+                                },
+                            },
+                        };
+                        break;
+                    case 'search':
+                        query.name = {contains: Array.isArray(value) ? value[0] : value, mode: 'insensitive'};
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
+
+    const [students, studentsCount] = await prisma.$transaction([
+        prisma.student.findMany({
+            where: query,
+            include: {
+                grade: true,
+                class: true,
+            },
+            take: ITEMS_PER_PAGE,   // 10 objects per request
+            skip: isNumeric(page) ? ITEMS_PER_PAGE * (Number(page) - 1) : 0,
+        }),
+        prisma.student.count({where: query}),
+    ]);
 
     return (
         <div className={'flex-1 rounded-md p-4 m-4 mt-0'}>
@@ -150,11 +184,11 @@ function StudentsPage() {
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={studentsData} renderRow={renderRow}/>
+            <Table columns={columns} data={students} renderRow={renderRow}/>
 
             {/** PAGINATION */}
             <div className={''}>
-                <Pagination/>
+                <Pagination page={page} count={studentsCount}/>
             </div>
         </div>
     );

@@ -115,11 +115,11 @@ function SingleTeacherPage() {
                 <div className={'bg-white p-4 rounded-md'}>
                     <h1 className={'text-xl font-semibold'}>Shortcuts</h1>
                     <div className={'flex flex-wrap mt-4 gap-4 text-xs text-gray-500'}>
-                        <Link href={routes.classesPath} className={'p-3 rounded-md bg-lamaSkyLight'}>Teacher&apos;s Classes</Link>
-                        <Link href={routes.studentsPath} className={'p-3 rounded-md bg-lamaPurpleLight'}>Teacher&apos;s Students</Link>
-                        <Link href={routes.lessonsPath} className={'p-3 rounded-md bg-lamaYellowLight'}>Teacher&apos;s Lessons</Link>
-                        <Link href={routes.examsPath} className={'p-3 rounded-md bg-pink-50'}>Teacher&apos;s Exams</Link>
-                        <Link href={routes.assignmentsPath} className={'p-3 rounded-md bg-lamaSkyLight'}>Teacher&apos;s Assignments</Link>
+                        <Link href={routes.classesPath({supervisorId: 'teacher2'})} className={'p-3 rounded-md bg-lamaSkyLight'}>Teacher&apos;s Classes</Link>
+                        <Link href={routes.studentsPath({teacherId: 'teacher2'})} className={'p-3 rounded-md bg-lamaPurpleLight'}>Teacher&apos;s Students</Link>
+                        <Link href={routes.lessonsPath({teacherId: 'teacher2'})} className={'p-3 rounded-md bg-lamaYellowLight'}>Teacher&apos;s Lessons</Link>
+                        <Link href={routes.examsPath({teacherId: 'teacher2'})} className={'p-3 rounded-md bg-pink-50'}>Teacher&apos;s Exams</Link>
+                        <Link href={routes.assignmentsPath({teacherId: 'teacher2'})} className={'p-3 rounded-md bg-lamaSkyLight'}>Teacher&apos;s Assignments</Link>
                     </div>
                 </div>
                 <Performance/>

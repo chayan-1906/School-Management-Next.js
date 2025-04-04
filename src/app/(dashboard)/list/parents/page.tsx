@@ -1,25 +1,17 @@
 import React from "react";
 import TableSearch from "@/components/TableSearch";
-import {FaFilter, FaPlus} from "react-icons/fa";
+import {FaFilter} from "react-icons/fa";
 import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
-import Link from "next/link";
-import {routes} from "@/lib/routes";
-import {cn} from "@/lib/utils";
-import {parentsData, role, WEB_CLIENT_URL} from "@/lib/data";
-import {FaTrashCan} from "react-icons/fa6";
-import {MdEdit} from "react-icons/md";
+import {isNumeric} from "@/lib/utils";
+import {role, WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
+import {Parent, Prisma, Student} from "@prisma/client";
+import prisma from "@/lib/prisma";
+import {ITEMS_PER_PAGE} from "@/lib/config";
 
-type Parent = {
-    id: number;
-    name: string;
-    students: string[];
-    email?: string;
-    phone: string;
-    address?: string;
-}
+type ParentList = Parent & { students: Student[] };
 
 const columns = [
     {
@@ -77,35 +69,67 @@ export async function generateMetadata() {
     return metadata;
 }
 
-function ParentsPage() {
-    const renderRow = ({id, name, students, email, phone, address}: Parent) => {
-        return (
-            <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
-                <td className={'flex items-center gap-4 p-4'}>
-                    <div className={'flex flex-col'}>
-                        <h3 className={'font-semibold'}>{name}</h3>
-                        <h4 className={'text-xs text-gray-500'}>{email}</h4>
-                    </div>
-                </td>
-                <td className={'hidden sm:table-cell'}>{students.join(', ')}</td>
-                <td className={'hidden md:table-cell'}>{phone}</td>
-                <td className={'hidden md:table-cell'}>{address}</td>
-                <td>
-                    <div className={'flex items-center gap-2'}>
-                        {role === 'admin' && (
-                            <>
-                                {/** UPDATE */}
-                                <FormModal table={'parent'} type={'update'} id={id}/>
+const renderRow = ({id, name, students, email, phone, address}: ParentList) => {
+    return (
+        <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
+            <td className={'flex items-center gap-4 p-4'}>
+                <div className={'flex flex-col'}>
+                    <h3 className={'font-semibold'}>{name}</h3>
+                    <h4 className={'text-xs text-gray-500'}>{email}</h4>
+                </div>
+            </td>
+            <td className={'hidden sm:table-cell'}>{students.map((student) => student.name).join(', ')}</td>
+            <td className={'hidden md:table-cell'}>{phone}</td>
+            <td className={'hidden md:table-cell'}>{address}</td>
+            <td>
+                <div className={'flex items-center gap-2'}>
+                    {role === 'admin' && (
+                        <>
+                            {/** UPDATE */}
+                            <FormModal table={'parent'} type={'update'} id={id}/>
 
-                                {/** DELETE */}
-                                <FormModal table={'parent'} type={'delete'} id={id}/>
-                            </>
-                        )}
-                    </div>
-                </td>
-            </tr>
-        );
+                            {/** DELETE */}
+                            <FormModal table={'parent'} type={'delete'} id={id}/>
+                        </>
+                    )}
+                </div>
+            </td>
+        </tr>
+    );
+}
+
+async function ParentsPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {page: rawPage, ...queryParams} = await searchParams || {};
+    const page = rawPage ? Number(rawPage) : 1;
+
+    /** URL PARAMS CONDITION */
+    const query: Prisma.ParentWhereInput = {};
+
+    if (queryParams) {
+        for (const [key, value] of Object.entries(queryParams)) {
+            if (value !== undefined) {
+                switch (key) {
+                    case 'search':
+                        query.name = {contains: Array.isArray(value) ? value[0] : value, mode: 'insensitive'};
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
+
+    const [parents, parentsCount] = await prisma.$transaction([
+        prisma.parent.findMany({
+            where: query,
+            include: {
+                students: true,
+            },
+            take: ITEMS_PER_PAGE,   // 10 objects per request
+            skip: isNumeric(page) ? ITEMS_PER_PAGE * (Number(page) - 1) : 0,
+        }),
+        prisma.parent.count({where: query}),
+    ]);
 
     return (
         <div className={'flex-1 rounded-md p-4 m-4 mt-0'}>
@@ -132,11 +156,11 @@ function ParentsPage() {
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={parentsData} renderRow={renderRow}/>
+            <Table columns={columns} data={parents} renderRow={renderRow}/>
 
             {/** PAGINATION */}
             <div className={''}>
-                <Pagination/>
+                <Pagination page={page} count={parentsCount}/>
             </div>
         </div>
     );

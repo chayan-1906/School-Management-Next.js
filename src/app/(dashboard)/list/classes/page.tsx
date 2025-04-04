@@ -1,24 +1,17 @@
 import React from "react";
 import TableSearch from "@/components/TableSearch";
-import {FaFilter, FaPlus} from "react-icons/fa";
+import {FaFilter} from "react-icons/fa";
 import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
-import Link from "next/link";
-import {routes} from "@/lib/routes";
-import {cn} from "@/lib/utils";
-import {classesData, role, WEB_CLIENT_URL} from "@/lib/data";
-import {FaTrashCan} from "react-icons/fa6";
-import {MdEdit} from "react-icons/md";
+import {role, WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
+import {Class, Grade, Prisma, Teacher} from "@prisma/client";
+import prisma from "@/lib/prisma";
+import {ITEMS_PER_PAGE} from "@/lib/config";
+import {isNumeric} from "@/lib/utils";
 
-type Class = {
-    id: number;
-    name: string;
-    capacity: number;
-    grade: string;
-    supervisor: string;
-}
+type ClassList = Class & { supervisor: Teacher } & { grade: Grade }
 
 const columns = [
     {
@@ -75,30 +68,66 @@ export async function generateMetadata() {
     return metadata;
 }
 
-function ClassesPage() {
-    const renderRow = ({id, name, capacity, grade, supervisor}: Class) => {
-        return (
-            <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
-                <td className={'flex items-center gap-4 p-4'}>{name}</td>
-                <td className={''}>{capacity}</td>
-                <td className={'hidden md:table-cell'}>{grade}</td>
-                <td className={'hidden sm:table-cell'}>{supervisor}</td>
-                <td>
-                    <div className={'flex items-center gap-2'}>
-                        {role === 'admin' && (
-                            <>
-                                {/** UPDATE */}
-                                <FormModal table={'class'} type={'update'} id={id}/>
+const renderRow = ({id, name, capacity, grade, supervisor}: ClassList) => {
+    return (
+        <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
+            <td className={'flex items-center gap-4 p-4'}>{name}</td>
+            <td className={''}>{capacity}</td>
+            <td className={'hidden md:table-cell'}>{grade.level}</td>
+            <td className={'hidden sm:table-cell'}>{supervisor.name} {supervisor.surname}</td>
+            <td>
+                <div className={'flex items-center gap-2'}>
+                    {role === 'admin' && (
+                        <>
+                            {/** UPDATE */}
+                            <FormModal table={'class'} type={'update'} id={id}/>
 
-                                {/** DELETE */}
-                                <FormModal table={'class'} type={'delete'} id={id}/>
-                            </>
-                        )}
-                    </div>
-                </td>
-            </tr>
-        );
+                            {/** DELETE */}
+                            <FormModal table={'class'} type={'delete'} id={id}/>
+                        </>
+                    )}
+                </div>
+            </td>
+        </tr>
+    );
+}
+
+async function ClassesPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {page: rawPage, ...queryParams} = await searchParams || {};
+    const page = rawPage ? Number(rawPage) : 1;
+
+    /** URL PARAMS CONDITION */
+    const query: Prisma.ClassWhereInput = {};
+
+    if (queryParams) {
+        for (const [key, value] of Object.entries(queryParams)) {
+            if (value !== undefined) {
+                switch (key) {
+                    case 'supervisorId':
+                        query.supervisorId = Array.isArray(value) ? value[0] : value;
+                        break;
+                    case 'search':
+                        query.name = {contains: Array.isArray(value) ? value[0] : value, mode: 'insensitive'};
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
+
+    const [classes, classesCount] = await prisma.$transaction([
+        prisma.class.findMany({
+            where: query,
+            include: {
+                grade: true,
+                supervisor: true,
+            },
+            take: ITEMS_PER_PAGE,   // 10 objects per request
+            skip: isNumeric(page) ? ITEMS_PER_PAGE * (Number(page) - 1) : 0,
+        }),
+        prisma.class.count({where: query}),
+    ]);
 
     return (
         <div className={'flex-1 rounded-md p-4 m-4 mt-0'}>
@@ -122,11 +151,11 @@ function ClassesPage() {
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={classesData} renderRow={renderRow}/>
+            <Table columns={columns} data={classes} renderRow={renderRow}/>
 
             {/** PAGINATION */}
             <div className={''}>
-                <Pagination/>
+                <Pagination page={page} count={classesCount}/>
             </div>
         </div>
     );

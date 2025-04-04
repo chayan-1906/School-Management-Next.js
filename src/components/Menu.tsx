@@ -22,7 +22,7 @@ const menuItems = [
             {
                 icon: '/student.png',
                 label: 'Students',
-                href: routes.studentsPath,
+                href: routes.studentsPath({}),
                 visible: ['admin', 'teacher'],
             },
             {
@@ -40,31 +40,31 @@ const menuItems = [
             {
                 icon: '/class.png',
                 label: 'Classes',
-                href: routes.classesPath,
+                href: routes.classesPath({}),
                 visible: ['admin', 'teacher'],
             },
             {
                 icon: '/lesson.png',
                 label: 'Lessons',
-                href: routes.lessonsPath,
+                href: routes.lessonsPath({}),
                 visible: ['admin', 'teacher'],
             },
             {
                 icon: '/exam.png',
                 label: 'Exams',
-                href: routes.examsPath,
+                href: routes.examsPath({}),
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {
                 icon: '/assignment.png',
                 label: 'Assignments',
-                href: routes.assignmentsPath,
+                href: routes.assignmentsPath({}),
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {
                 icon: '/result.png',
                 label: 'Results',
-                href: routes.resultsPath,
+                href: routes.resultsPath({}),
                 visible: ['admin', 'teacher', 'student', 'parent'],
             },
             {

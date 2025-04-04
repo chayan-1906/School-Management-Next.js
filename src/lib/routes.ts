@@ -15,14 +15,98 @@ export const routes = {
         }
         return url;
     },
-    studentsPath: '/list/students',
+    studentsPath: ({teacherId}: { teacherId?: string }) => {
+        let url = `/list/students`;
+        let queryParams = [];
+
+        if (!isStringInvalid(teacherId)) {
+            queryParams.push(`teacherId=${teacherId}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+        return url;
+    },
     parentsPath: '/list/parents',
     subjectsPath: '/list/subjects',
-    classesPath: '/list/classes',
-    lessonsPath: '/list/lessons',
-    examsPath: '/list/exams',
-    assignmentsPath: '/list/assignments',
-    resultsPath: '/list/results',
+    classesPath: ({supervisorId}: { supervisorId?: string }) => {
+        let url = `/list/classes`;
+        let queryParams = [];
+
+        if (!isStringInvalid(supervisorId)) {
+            queryParams.push(`supervisorId=${supervisorId}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+        return url;
+    },
+    lessonsPath: ({teacherId, classId}: { teacherId?: string; classId?: number }) => {
+        let url = `/list/lessons`;
+        let queryParams = [];
+
+        if (!isStringInvalid(teacherId)) {
+            queryParams.push(`teacherId=${teacherId}`);
+        }
+
+        if (!isStringInvalid(classId)) {
+            queryParams.push(`classId=${classId}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+        return url;
+    },
+    examsPath: ({teacherId, classId}: { teacherId?: string; classId?: number }) => {
+        let url = `/list/exams`;
+        let queryParams = [];
+
+        if (!isStringInvalid(teacherId)) {
+            queryParams.push(`teacherId=${teacherId}`);
+        }
+
+        if (!isStringInvalid(classId)) {
+            queryParams.push(`classId=${classId}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+        return url;
+    },
+    assignmentsPath: ({teacherId, classId}: { teacherId?: string; classId?: number }) => {
+        let url = `/list/assignments`;
+        let queryParams = [];
+
+        if (!isStringInvalid(teacherId)) {
+            queryParams.push(`teacherId=${teacherId}`);
+        }
+
+        if (!isStringInvalid(classId)) {
+            queryParams.push(`classId=${classId}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+        return url;
+    },
+    resultsPath: ({classId}: { classId?: number }) => {
+        let url = `/list/results`;
+        let queryParams = [];
+
+        if (!isStringInvalid(classId)) {
+            queryParams.push(`classId=${classId}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+        return url;
+    },
     attendancePath: '/list/attendance',
     eventsPath: '/list/events',
     messagesPath: '/list/messages',
