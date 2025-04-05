@@ -2,8 +2,9 @@ import "./globals.css";
 import React from "react";
 import {Inter} from "next/font/google";
 import {APP_LOGO_URL, APP_NAME, APP_TAGLINE, metadataKeywords, WEB_CLIENT_URL} from "@/lib/data";
+import {ClerkProvider} from "@clerk/nextjs";
 
-const inter = Inter({subsets: ["latin"]});
+const inter = Inter({subsets: ['latin']});
 
 export const metadata = {
     title: {
@@ -42,11 +43,13 @@ export const metadata = {
 
 function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
     return (
-        <html lang={'en'} suppressHydrationWarning>
-        <body className={inter.className}>
-        {children}
-        </body>
-        </html>
+        <ClerkProvider>
+            <html lang={'en'} suppressHydrationWarning>
+            <body className={inter.className}>
+            {children}
+            </body>
+            </html>
+        </ClerkProvider>
     );
 }
 

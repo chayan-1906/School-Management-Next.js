@@ -2,6 +2,7 @@ import {isStringInvalid} from "@/lib/utils";
 
 export const routes = {
     homePath: '/',
+    rolePath: (role: string) => `/${role}`,
     teachersPath: ({classId}: { classId?: number }) => {
         let url = `/list/teachers`;
         let queryParams = [];
