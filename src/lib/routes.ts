@@ -94,12 +94,12 @@ export const routes = {
         }
         return url;
     },
-    resultsPath: ({classId}: { classId?: number }) => {
+    resultsPath: ({studentId}: { studentId?: string }) => {
         let url = `/list/results`;
         let queryParams = [];
 
-        if (!isStringInvalid(classId)) {
-            queryParams.push(`classId=${classId}`);
+        if (!isStringInvalid(studentId)) {
+            queryParams.push(`studentId=${studentId}`);
         }
 
         if (queryParams.length > 0) {

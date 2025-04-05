@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 ::selection {
-    @apply bg-orange-500 text-white font-black;
+    @apply bg-lamaPurple text-white;
 }
 
 .react-calendar {
