@@ -7,16 +7,17 @@ import Table from "@/components/Table";
 import Image from "next/image";
 import Link from "next/link";
 import {routes} from "@/lib/routes";
-import {role, WEB_CLIENT_URL} from "@/lib/data";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import {Class, Prisma, Subject, Teacher} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
 import {isNumeric} from "@/lib/utils";
+import getSessionClaims from "@/lib/getSessionClaims";
 
 type TeacherList = Teacher & { subjects: Subject[] } & { classes: Class[] }
 
-const columns = [
+const columns = ({role}: { role: string }) => [
     {
         header: 'Info',
         accessor: 'info',
@@ -82,7 +83,7 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, username, name, img, email, phone, address, classes, subjects}: TeacherList) => {
+const renderRow = (role: string, {id, username, name, img, email, phone, address, classes, subjects}: TeacherList) => {
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>
@@ -117,6 +118,8 @@ const renderRow = ({id, username, name, img, email, phone, address, classes, sub
 }
 
 async function TeachersPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
     const {page: rawPage, ...queryParams} = await searchParams || {};
     const page = rawPage ? Number(rawPage) : 1;
 
@@ -184,7 +187,7 @@ async function TeachersPage({searchParams}: { searchParams: Promise<Record<strin
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={teachers} renderRow={renderRow}/>
+            <Table columns={columns({role})} data={teachers} renderRow={(item) => renderRow(role, item)}/>
 
             {/** PAGINATION */}
             <div className={''}>

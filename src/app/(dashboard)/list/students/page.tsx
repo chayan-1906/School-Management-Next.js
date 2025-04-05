@@ -8,15 +8,16 @@ import Image from "next/image";
 import Link from "next/link";
 import {routes} from "@/lib/routes";
 import {isNumeric} from "@/lib/utils";
-import {role, WEB_CLIENT_URL} from "@/lib/data";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import {Class, Grade, Prisma, Student} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
+import getSessionClaims from "@/lib/getSessionClaims";
 
 type StudentList = Student & { class: Class } & {grade: Grade};
 
-const columns = [
+const columns = ({role}: { role: string }) => [
     {
         header: 'Info',
         accessor: 'info',
@@ -82,7 +83,7 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, username, name, img, email, phone, address, class: studentOfClass, grade}: StudentList) => {
+const renderRow = (role: string, {id, username, name, img, email, phone, address, class: studentOfClass, grade}: StudentList) => {
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>
@@ -117,6 +118,8 @@ const renderRow = ({id, username, name, img, email, phone, address, class: stude
 }
 
 async function StudentsPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
     const {page: rawPage, ...queryParams} = await searchParams || {};
     const page = rawPage ? Number(rawPage) : 1;
 
@@ -173,10 +176,7 @@ async function StudentsPage({searchParams}: { searchParams: Promise<Record<strin
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        {/*<button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
-                            <FaPlus size={12}/>
-                        </button>*/}
-                        {role === 'admin' && (
+                        {['admin', 'teacher'].includes(role) && (
                             <FormModal table={'student'} type={'create'}/>
                         )}
                     </div>
@@ -184,7 +184,7 @@ async function StudentsPage({searchParams}: { searchParams: Promise<Record<strin
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={students} renderRow={renderRow}/>
+            <Table columns={columns({role})} data={students} renderRow={(item) => renderRow(role, item)}/>
 
             {/** PAGINATION */}
             <div className={''}>

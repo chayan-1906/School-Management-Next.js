@@ -5,15 +5,16 @@ import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import {isNumeric} from "@/lib/utils";
-import {role, WEB_CLIENT_URL} from "@/lib/data";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import {Class, Exam, Prisma, Subject, Teacher} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
+import getSessionClaims from "@/lib/getSessionClaims";
 
 type ExamList = Exam & { lesson: { subject: Subject, class: Class, teacher: Teacher } };
 
-const columns = [
+const columns = ({role}: { role: string }) => [
     {
         header: 'Subject',
         accessor: 'subject',
@@ -32,10 +33,10 @@ const columns = [
         accessor: 'date',
         className: 'hidden md:table-cell',
     },
-    {
+    ...(['admin', 'teacher'].includes(role) ? [{
         header: 'Actions',
         accessor: 'actions',
-    },
+    }] : []),
 ];
 
 export async function generateMetadata() {
@@ -68,24 +69,20 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, lesson: {subject, class: examOfClass, teacher}, startTime}: ExamList) => {
+const renderRow = (role: string, {id, lesson: {subject, class: examOfClass, teacher}, startTime}: ExamList) => {
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>{subject.name}</td>
             <td className={''}>{examOfClass.name}</td>
             <td className={'hidden md:table-cell'}>{teacher.name} {teacher.surname}</td>
             <td className={'hidden md:table-cell'}>{new Intl.DateTimeFormat('en-US').format(startTime)}</td>
-            <td>
+            <td className={['admin', 'teacher'].includes(role) ? 'flex' : 'hidden'}>
                 <div className={'flex items-center gap-2'}>
-                    {role === 'admin' && (
-                        <>
-                            {/** UPDATE */}
-                            <FormModal table={'exam'} type={'update'} id={id}/>
+                    {/** UPDATE */}
+                    <FormModal table={'exam'} type={'update'} id={id}/>
 
-                            {/** DELETE */}
-                            <FormModal table={'exam'} type={'delete'} id={id}/>
-                        </>
-                    )}
+                    {/** DELETE */}
+                    <FormModal table={'exam'} type={'delete'} id={id}/>
                 </div>
             </td>
         </tr>
@@ -93,11 +90,14 @@ const renderRow = ({id, lesson: {subject, class: examOfClass, teacher}, startTim
 }
 
 async function ExamsPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
     const {page: rawPage, ...queryParams} = await searchParams || {};
     const page = rawPage ? Number(rawPage) : 1;
 
     /** URL PARAMS CONDITION */
     const query: Prisma.ExamWhereInput = {};
+    query.lesson = {};
 
     if (queryParams) {
         for (let [key, value] of Object.entries(queryParams)) {
@@ -106,16 +106,14 @@ async function ExamsPage({searchParams}: { searchParams: Promise<Record<string, 
 
                 switch (key) {
                     case 'teacherId':
-                        query.lesson = {teacherId: value};
+                        query.lesson.teacherId = value;
                         break;
                     case 'classId':
-                        query.lesson = {classId: isNumeric(value) ? Number(value) : undefined};
+                        query.lesson.classId = isNumeric(value) ? Number(value) : undefined;
                         break;
                     case 'search':
-                        query.lesson = {
-                            subject: {
-                                name: {contains: value, mode: 'insensitive'},
-                            },
+                        query.lesson.subject = {
+                            name: {contains: value, mode: 'insensitive'},
                         };
                         break;
                     default:
@@ -123,6 +121,31 @@ async function ExamsPage({searchParams}: { searchParams: Promise<Record<string, 
                 }
             }
         }
+    }
+
+    /** ROLE CONDITIONS */
+    switch (role) {
+        case 'admin':
+            break;
+        case 'teacher':
+            query.lesson.teacherId = userId;
+            break;
+        case 'student':
+            query.lesson.class = {
+                students: {
+                    some: {id: userId},
+                },
+            };
+            break;
+        case 'parent':
+            query.lesson.class = {
+                students: {
+                    some: {parentId: userId},
+                },
+            };
+            break;
+        default:
+            break;
     }
 
     const [exams, examsCount] = await prisma.$transaction([
@@ -158,13 +181,15 @@ async function ExamsPage({searchParams}: { searchParams: Promise<Record<string, 
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        <FormModal table={'exam'} type={'create'}/>
+                        {['admin', 'teacher'].includes(role) && (
+                            <FormModal table={'exam'} type={'create'}/>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={exams} renderRow={renderRow}/>
+            <Table columns={columns({role})} data={exams} renderRow={(item) => renderRow(role, item)}/>
 
             {/** PAGINATION */}
             <div className={''}>

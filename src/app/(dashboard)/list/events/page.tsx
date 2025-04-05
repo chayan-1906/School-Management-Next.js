@@ -5,15 +5,16 @@ import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import {isNumeric} from "@/lib/utils";
-import {role, WEB_CLIENT_URL} from "@/lib/data";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import {Class, Event, Prisma} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
+import getSessionClaims from "@/lib/getSessionClaims";
 
 type EventList = Event & { class: Class }
 
-const columns = [
+const columns = ({role}: { role: string }) => [
     {
         header: 'Title',
         accessor: 'title',
@@ -37,10 +38,10 @@ const columns = [
         accessor: 'endTime',
         className: 'hidden md:table-cell',
     },
-    {
+    ...(['admin'].includes(role) ? [{
         header: 'Actions',
         accessor: 'actions',
-    },
+    }] : []),
 ];
 
 export async function generateMetadata() {
@@ -73,25 +74,21 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, title, class: eventOfClass, startTime, endTime}: EventList) => {
+const renderRow = (role: string, {id, title, class: eventOfClass, startTime, endTime}: EventList) => {
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>{title}</td>
-            <td className={''}>{eventOfClass.name}</td>
+            <td className={''}>{eventOfClass?.name || '-'}</td>
             <td className={'hidden sm:table-cell'}>{new Intl.DateTimeFormat('en-US').format(startTime)}</td>
             <td className={'hidden md:table-cell'}>{startTime.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}</td>
             <td className={'hidden md:table-cell'}>{endTime.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}</td>
-            <td>
+            <td className={['admin'].includes(role) ? 'flex' : 'hidden'}>
                 <div className={'flex items-center gap-2'}>
-                    {role === 'admin' && (
-                        <>
-                            {/** UPDATE */}
-                            <FormModal table={'event'} type={'update'} id={id}/>
+                    {/** UPDATE */}
+                    <FormModal table={'event'} type={'update'} id={id}/>
 
-                            {/** DELETE */}
-                            <FormModal table={'event'} type={'delete'} id={id}/>
-                        </>
-                    )}
+                    {/** DELETE */}
+                    <FormModal table={'event'} type={'delete'} id={id}/>
                 </div>
             </td>
         </tr>
@@ -99,6 +96,8 @@ const renderRow = ({id, title, class: eventOfClass, startTime, endTime}: EventLi
 }
 
 async function EventsPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
     const {page: rawPage, ...queryParams} = await searchParams || {};
     const page = rawPage ? Number(rawPage) : 1;
 
@@ -120,6 +119,17 @@ async function EventsPage({searchParams}: { searchParams: Promise<Record<string,
             }
         }
     }
+
+    /** ROLE CONDITIONS */
+    const roleConditions = {
+        teacher: {lessons: {some: {teacherId: userId}}},
+        student: {students: {some: {id: userId}}},
+        parent: {students: {some: {parentId: userId}}},
+    };
+    query.OR = [
+        {classId: null},
+        {class: roleConditions[role as keyof typeof roleConditions] || {}},
+    ];
 
     const [events, eventsCount] = await prisma.$transaction([
         prisma.event.findMany({
@@ -153,7 +163,7 @@ async function EventsPage({searchParams}: { searchParams: Promise<Record<string,
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={events} renderRow={renderRow}/>
+            <Table columns={columns({role})} data={events} renderRow={(item) => renderRow(role, item)}/>
 
             {/** PAGINATION */}
             <div className={''}>

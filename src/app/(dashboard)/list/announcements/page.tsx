@@ -1,23 +1,20 @@
 import React from "react";
 import TableSearch from "@/components/TableSearch";
-import {FaFilter, FaPlus} from "react-icons/fa";
+import {FaFilter} from "react-icons/fa";
 import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
-import Link from "next/link";
-import {routes} from "@/lib/routes";
-import {cn, isNumeric} from "@/lib/utils";
-import {announcementsData, eventsData, role, WEB_CLIENT_URL} from "@/lib/data";
-import {FaTrashCan} from "react-icons/fa6";
-import {MdEdit} from "react-icons/md";
+import {isNumeric} from "@/lib/utils";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import {Announcement, Class, Prisma} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
+import getSessionClaims from "@/lib/getSessionClaims";
 
-type AnnouncementList = Announcement & {class: Class}
+type AnnouncementList = Announcement & { class: Class };
 
-const columns = [
+const columns = ({role}: { role: string }) => [
     {
         header: 'Title',
         accessor: 'title',
@@ -31,10 +28,10 @@ const columns = [
         accessor: 'date',
         className: 'hidden sm:table-cell',
     },
-    {
+    ...(['admin'].includes(role) ? [{
         header: 'Actions',
         accessor: 'actions',
-    },
+    }] : []),
 ];
 
 export async function generateMetadata() {
@@ -67,23 +64,19 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, title, class: announcementOfClass, date}: AnnouncementList) => {
+const renderRow = (role: string, {id, title, class: announcementOfClass, date}: AnnouncementList) => {
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>{title}</td>
-            <td className={''}>{announcementOfClass.name}</td>
+            <td className={''}>{announcementOfClass?.name || '-'}</td>
             <td className={'hidden sm:table-cell'}>{new Intl.DateTimeFormat('en-US').format(date)}</td>
-            <td>
+            <td className={['admin'].includes(role) ? 'flex' : 'hidden'}>
                 <div className={'flex items-center gap-2'}>
-                    {role === 'admin' && (
-                        <>
-                            {/** UPDATE */}
-                            <FormModal table={'announcement'} type={'update'} id={id}/>
+                    {/** UPDATE */}
+                    <FormModal table={'announcement'} type={'update'} id={id}/>
 
-                            {/** DELETE */}
-                            <FormModal table={'announcement'} type={'delete'} id={id}/>
-                        </>
-                    )}
+                    {/** DELETE */}
+                    <FormModal table={'announcement'} type={'delete'} id={id}/>
                 </div>
             </td>
         </tr>
@@ -91,6 +84,8 @@ const renderRow = ({id, title, class: announcementOfClass, date}: AnnouncementLi
 }
 
 async function AnnouncementsPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
     const {page: rawPage, ...queryParams} = await searchParams || {};
     const page = rawPage ? Number(rawPage) : 1;
 
@@ -112,6 +107,17 @@ async function AnnouncementsPage({searchParams}: { searchParams: Promise<Record<
             }
         }
     }
+
+    /** ROLE CONDITIONS */
+    const roleConditions = {
+        teacher: {lessons: {some: {teacherId: userId}}},
+        student: {students: {some: {id: userId}}},
+        parent: {students: {some: {parentId: userId}}},
+    };
+    query.OR = [
+        {classId: null},
+        {class: roleConditions[role as keyof typeof roleConditions] || {}},
+    ];
 
     const [announcements, announcementsCount] = await prisma.$transaction([
         prisma.announcement.findMany({
@@ -145,7 +151,7 @@ async function AnnouncementsPage({searchParams}: { searchParams: Promise<Record<
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={announcements} renderRow={renderRow}/>
+            <Table columns={columns({role})} data={announcements} renderRow={(item) => renderRow(role, item)}/>
 
             {/** PAGINATION */}
             <div className={''}>

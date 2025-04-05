@@ -5,11 +5,12 @@ import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import {isNumeric} from "@/lib/utils";
-import {role, WEB_CLIENT_URL} from "@/lib/data";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import prisma from "@/lib/prisma";
 import {Prisma} from "@prisma/client";
 import {ITEMS_PER_PAGE} from "@/lib/config";
+import getSessionClaims from "@/lib/getSessionClaims";
 
 type ResultList = {
     id: number;
@@ -23,7 +24,7 @@ type ResultList = {
     startTime: Date;
 }
 
-const columns = [
+const columns = ({role}: { role: string }) => [
     {
         header: 'Title',
         accessor: 'title',
@@ -52,10 +53,10 @@ const columns = [
         accessor: 'date',
         className: 'hidden md:table-cell',
     },
-    {
+    ...(['admin', 'teacher'].includes(role) ? [{
         header: 'Actions',
         accessor: 'actions',
-    },
+    }] : []),
 ];
 
 export async function generateMetadata() {
@@ -88,7 +89,7 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, title, studentName, studentSurname, teacherName, teacherSurname, score, className, startTime}: ResultList) => {
+const renderRow = (role: string, {id, title, studentName, studentSurname, teacherName, teacherSurname, score, className, startTime}: ResultList) => {
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>{title}</td>
@@ -97,17 +98,13 @@ const renderRow = ({id, title, studentName, studentSurname, teacherName, teacher
             <td className={'hidden md:table-cell'}>{teacherName} {teacherSurname}</td>
             <td className={'hidden md:table-cell'}>{className}</td>
             <td className={'hidden md:table-cell'}>{new Intl.DateTimeFormat('en-US').format(startTime)}</td>
-            <td>
+            <td className={['admin', 'teacher'].includes(role) ? 'flex' : 'hidden'}>
                 <div className={'flex items-center gap-2'}>
-                    {role === 'admin' && (
-                        <>
-                            {/** UPDATE */}
-                            <FormModal table={'result'} type={'update'} id={id}/>
+                    {/** UPDATE */}
+                    <FormModal table={'result'} type={'update'} id={id}/>
 
-                            {/** DELETE */}
-                            <FormModal table={'result'} type={'delete'} id={id}/>
-                        </>
-                    )}
+                    {/** DELETE */}
+                    <FormModal table={'result'} type={'delete'} id={id}/>
                 </div>
             </td>
         </tr>
@@ -115,6 +112,8 @@ const renderRow = ({id, title, studentName, studentSurname, teacherName, teacher
 }
 
 async function ResultsPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
     const {page: rawPage, ...queryParams} = await searchParams || {};
     const page = rawPage ? Number(rawPage) : 1;
 
@@ -141,6 +140,25 @@ async function ResultsPage({searchParams}: { searchParams: Promise<Record<string
                 }
             }
         }
+    }
+
+    switch (role) {
+        case 'admin':
+            break;
+        case 'teacher':
+            query.OR = [
+                {exam: {lesson: {teacherId: userId}}},
+                {assignment: {lesson: {teacherId: userId}}},
+            ];
+            break;
+        case 'student':
+            query.studentId = userId;
+            break;
+        case 'parent':
+            query.student = {parentId: userId};
+            break;
+        default:
+            break;
     }
 
     const [dataResults, resultsCount] = await prisma.$transaction([
@@ -207,7 +225,7 @@ async function ResultsPage({searchParams}: { searchParams: Promise<Record<string
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        {role === 'admin' && (
+                        {['admin', 'teacher'].includes(role) && (
                             <FormModal table={'result'} type={'create'}/>
                         )}
                     </div>
@@ -215,7 +233,7 @@ async function ResultsPage({searchParams}: { searchParams: Promise<Record<string
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={results} renderRow={renderRow}/>
+            <Table columns={columns({role})} data={results} renderRow={(item) => renderRow(role, item)}/>
 
             {/** PAGINATION */}
             <div className={''}>

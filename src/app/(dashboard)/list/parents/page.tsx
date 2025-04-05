@@ -10,10 +10,11 @@ import FormModal from "@/components/FormModal";
 import {Parent, Prisma, Student} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
+import getSessionClaims from "@/lib/getSessionClaims";
 
 type ParentList = Parent & { students: Student[] };
 
-const columns = [
+const columns = ({role}: { role: string }) => [
     {
         header: 'Info',
         accessor: 'info',
@@ -33,10 +34,10 @@ const columns = [
         accessor: 'address',
         className: 'hidden md:table-cell',
     },
-    {
+    ...(['admin'].includes(role) ? [{
         header: 'Actions',
         accessor: 'actions',
-    },
+    }] : []),
 ];
 
 export async function generateMetadata() {
@@ -69,7 +70,7 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, name, students, email, phone, address}: ParentList) => {
+const renderRow = (role: string, {id, name, students, email, phone, address}: ParentList) => {
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>
@@ -81,17 +82,13 @@ const renderRow = ({id, name, students, email, phone, address}: ParentList) => {
             <td className={'hidden sm:table-cell'}>{students.map((student) => student.name).join(', ')}</td>
             <td className={'hidden md:table-cell'}>{phone}</td>
             <td className={'hidden md:table-cell'}>{address}</td>
-            <td>
+            <td className={['admin'].includes(role) ? 'flex' : 'hidden'}>
                 <div className={'flex items-center gap-2'}>
-                    {role === 'admin' && (
-                        <>
-                            {/** UPDATE */}
-                            <FormModal table={'parent'} type={'update'} id={id}/>
+                    {/** UPDATE */}
+                    <FormModal table={'parent'} type={'update'} id={id}/>
 
-                            {/** DELETE */}
-                            <FormModal table={'parent'} type={'delete'} id={id}/>
-                        </>
-                    )}
+                    {/** DELETE */}
+                    <FormModal table={'parent'} type={'delete'} id={id}/>
                 </div>
             </td>
         </tr>
@@ -99,6 +96,8 @@ const renderRow = ({id, name, students, email, phone, address}: ParentList) => {
 }
 
 async function ParentsPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
     const {page: rawPage, ...queryParams} = await searchParams || {};
     const page = rawPage ? Number(rawPage) : 1;
 
@@ -145,9 +144,6 @@ async function ParentsPage({searchParams}: { searchParams: Promise<Record<string
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        {/*<button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
-                            <FaPlus size={12}/>
-                        </button>*/}
                         {role === 'admin' && (
                             <FormModal table={'parent'} type={'create'}/>
                         )}
@@ -156,7 +152,7 @@ async function ParentsPage({searchParams}: { searchParams: Promise<Record<string
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={parents} renderRow={renderRow}/>
+            <Table columns={columns({role})} data={parents} renderRow={(item) => renderRow(role, item)}/>
 
             {/** PAGINATION */}
             <div className={''}>

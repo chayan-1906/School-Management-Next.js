@@ -4,16 +4,17 @@ import {FaFilter} from "react-icons/fa";
 import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
-import {role, WEB_CLIENT_URL} from "@/lib/data";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import {Class, Grade, Prisma, Teacher} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
 import {isNumeric} from "@/lib/utils";
+import getSessionClaims from "@/lib/getSessionClaims";
 
-type ClassList = Class & { supervisor: Teacher } & { grade: Grade }
+type ClassList = Class & { supervisor: Teacher } & { grade: Grade };
 
-const columns = [
+const columns = ({role}: { role: string }) => [
     {
         header: 'Class Name',
         accessor: 'name',
@@ -32,10 +33,10 @@ const columns = [
         accessor: 'supervisor',
         className: 'hidden sm:table-cell',
     },
-    {
+    ...(['admin'].includes(role) ? [{
         header: 'Actions',
         accessor: 'actions',
-    },
+    }] : []),
 ];
 
 export async function generateMetadata() {
@@ -68,24 +69,20 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, name, capacity, grade, supervisor}: ClassList) => {
+const renderRow = (role: string, {id, name, capacity, grade, supervisor}: ClassList) => {
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>{name}</td>
             <td className={''}>{capacity}</td>
             <td className={'hidden md:table-cell'}>{grade.level}</td>
             <td className={'hidden sm:table-cell'}>{supervisor.name} {supervisor.surname}</td>
-            <td>
+            <td className={['admin'].includes(role) ? 'flex' : 'hidden'}>
                 <div className={'flex items-center gap-2'}>
-                    {role === 'admin' && (
-                        <>
-                            {/** UPDATE */}
-                            <FormModal table={'class'} type={'update'} id={id}/>
+                    {/** UPDATE */}
+                    <FormModal table={'class'} type={'update'} id={id}/>
 
-                            {/** DELETE */}
-                            <FormModal table={'class'} type={'delete'} id={id}/>
-                        </>
-                    )}
+                    {/** DELETE */}
+                    <FormModal table={'class'} type={'delete'} id={id}/>
                 </div>
             </td>
         </tr>
@@ -93,6 +90,8 @@ const renderRow = ({id, name, capacity, grade, supervisor}: ClassList) => {
 }
 
 async function ClassesPage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
     const {page: rawPage, ...queryParams} = await searchParams || {};
     const page = rawPage ? Number(rawPage) : 1;
 
@@ -151,7 +150,7 @@ async function ClassesPage({searchParams}: { searchParams: Promise<Record<string
             </div>
 
             {/** LIST */}
-            <Table columns={columns} data={classes} renderRow={renderRow}/>
+            <Table columns={columns({role})} data={classes} renderRow={(item) => renderRow(role, item)}/>
 
             {/** PAGINATION */}
             <div className={''}>
