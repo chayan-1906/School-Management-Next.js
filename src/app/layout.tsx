@@ -3,6 +3,8 @@ import React from "react";
 import {Inter} from "next/font/google";
 import {APP_LOGO_URL, APP_NAME, APP_TAGLINE, metadataKeywords, WEB_CLIENT_URL} from "@/lib/data";
 import {ClerkProvider} from "@clerk/nextjs";
+import {ToastContainer} from "react-toastify";
+// import 'react-toastify/dist/dist/ReactToastify.css'
 
 const inter = Inter({subsets: ['latin']});
 
@@ -47,6 +49,7 @@ function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
             <html lang={'en'} suppressHydrationWarning>
             <body className={inter.className}>
             {children}
+            <ToastContainer position={'bottom-right'} theme={'dark'}/>
             </body>
             </html>
         </ClerkProvider>

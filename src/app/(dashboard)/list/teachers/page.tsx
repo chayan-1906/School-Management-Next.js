@@ -100,8 +100,8 @@ const renderRow = (role: string, {id, username, name, img, email, phone, address
             <td className={'hidden lg:table-cell'}>{address}</td>
             <td>
                 <div className={'flex items-center gap-2'}>
+                    {/** VIEW */}
                     <Link href={routes.teacherPath(id, {})}>
-                        {/** VIEW */}
                         <button className={'flex items-center justify-center size-7 rounded-full bg-lamaSky'}>
                             <FaEye color={'white'}/>
                         </button>
@@ -176,9 +176,6 @@ async function TeachersPage({searchParams}: { searchParams: Promise<Record<strin
                         <button className={'flex size-8 items-center justify-center rounded-full bg-lamaYellow'}>
                             <FaFilter size={12}/>
                         </button>
-                        {/*<button className={cn('size-8 items-center justify-center rounded-full bg-lamaYellow', role === 'admin' ? 'flex' : 'hidden')}>
-                            <FaPlus size={12}/>
-                        </button>*/}
                         {role === 'admin' && (
                             <FormModal table={'teacher'} type={'create'}/>
                         )}

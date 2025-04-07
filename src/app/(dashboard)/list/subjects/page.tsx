@@ -60,7 +60,9 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = ({id, name, teachers}: SubjectList) => {
+const renderRow = (subject: SubjectList) => {
+    const {id, name, teachers} = subject;
+
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>
@@ -72,10 +74,10 @@ const renderRow = ({id, name, teachers}: SubjectList) => {
                     {role === 'admin' && (
                         <>
                             {/** UPDATE */}
-                            <FormModal table={'subject'} type={'update'} id={id}/>
+                            <FormModal table={'subject'} type={'update'} data={subject}/>
 
                             {/** DELETE */}
-                            <FormModal table={'subject'} type={'delete'} id={id}/>
+                            <FormModal table={'subject'} type={'delete'} data={subject} id={id}/>
                         </>
                     )}
                 </div>
