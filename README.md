@@ -59,6 +59,10 @@ Your app is ready to be deployed!
     npx prisma db seed
     npx prisma migrate reset
 
+Parent: user_2vJrUQpyXq35qTxoYGutYJSI3bJ
+Student: user_2vJrRvYJ7R35dnsRlZaF302uKTY
+Teacher: user_2vJrQG4Q7CUS2CORIBUFSjQ5Lwe
+
 ## [Live Site (Vercel)](https://oakwood-academy.vercel.app/)
 
 # Dependencies

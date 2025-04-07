@@ -76,7 +76,7 @@ async function main() {
     }
 
     // LESSON
-    for (let i = 1; i <= 30; i++) {
+    /*for (let i = 1; i <= 30; i++) {
         await prisma.lesson.create({
             data: {
                 name: `Lesson${i}`,
@@ -87,6 +87,36 @@ async function main() {
                     ],
                 startTime: new Date(new Date().setHours(new Date().getHours() + 1)),
                 endTime: new Date(new Date().setHours(new Date().getHours() + 3)),
+                subjectId: (i % 10) + 1,
+                classId: (i % 6) + 1,
+                teacherId: `teacher${(i % 15) + 1}`,
+            },
+        });
+    }*/
+    for (let i = 1; i <= 30; i++) {
+        const day = Day[
+            Object.keys(Day)[
+                Math.floor(Math.random() * Object.keys(Day).length)
+                ] as keyof typeof Day
+            ];
+
+        const randomDayOffset = Math.floor(Math.random() * 5); // 0 to 4 → Apr 7 to Apr 11
+        const baseDate = new Date(Date.UTC(2025, 3, 7 + randomDayOffset)); // Month is 0-indexed (3 = April)
+
+        const istStartHour = 8 + Math.floor(Math.random() * 6); // 8 to 13 IST
+        const duration = Math.floor(Math.random() * (180 - 60 + 1)) + 60; // 60 to 180 mins
+
+        const startTime = new Date(baseDate);
+        startTime.setUTCHours(istStartHour - 5, 30, 0, 0); // IST to UTC
+
+        const endTime = new Date(startTime.getTime() + duration * 60000);
+
+        await prisma.lesson.create({
+            data: {
+                name: `Lesson${i}`,
+                day,
+                startTime,
+                endTime,
                 subjectId: (i % 10) + 1,
                 classId: (i % 6) + 1,
                 teacherId: `teacher${(i % 15) + 1}`,

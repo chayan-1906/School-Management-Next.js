@@ -1,34 +1,34 @@
 import React from "react";
 import UserCard from "../../../components/UserCard";
-import CountChart from "../../../components/CountChart";
-import AttendanceChart from "../../../components/AttendanceChart";
 import FinanceChart from "../../../components/FinanceChart";
-import EventCalendar from "../../../components/EventCalendar";
 import Announcements from "../../../components/Announcements";
+import CountChartContainer from "@/components/CountChartContainer";
+import AttendanceChartContainer from "@/components/AttendanceChartContainer";
+import EventCalendarContainer from "@/components/EventCalendarContainer";
 
-function AdminPage() {
+function AdminHomePage({searchParams}: { searchParams: Promise<Record<string, string | string[] | undefined>>; }) {
     return (
         <div className={'flex flex-col p-4 gap-4 md:flex-row'}>
             {/** LEFT */}
             <div className={'flex flex-col gap-4 w-full lg:w-2/3'}>
                 {/** USER CARDS */}
                 <div className={'flex gap-4 justify-between flex-wrap'}>
-                    <UserCard type={'students'}/>
-                    <UserCard type={'teachers'}/>
+                    <UserCard type={'admin'}/>
+                    <UserCard type={'teacher'}/>
+                    <UserCard type={'student'}/>
                     <UserCard type={'parent'}/>
-                    <UserCard type={'staff'}/>
                 </div>
 
                 {/** MIDDLE CHARTS */}
                 <div className={'flex flex-col lg:flex-row gap-4'}>
                     {/** COUNT CHART */}
                     <div className={'w-full lg:w-1/3 h-[450px]'}>
-                        <CountChart/>
+                        <CountChartContainer/>
                     </div>
 
                     {/** ATTENDANCE CHART */}
                     <div className={'w-full lg:w-2/3 h-[450px]'}>
-                        <AttendanceChart/>
+                        <AttendanceChartContainer/>
                     </div>
                 </div>
 
@@ -40,11 +40,11 @@ function AdminPage() {
 
             {/** RIGHT */}
             <div className={'flex flex-col gap-8 w-full lg:w-1/3'}>
-                <EventCalendar/>
+                <EventCalendarContainer searchParams={searchParams}/>
                 <Announcements/>
             </div>
         </div>
     );
 }
 
-export default AdminPage;
+export default AdminHomePage;
