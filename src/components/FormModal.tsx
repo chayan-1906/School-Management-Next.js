@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import {deleteSubject} from "@/lib/actions";
 import {useRouter} from "next/navigation";
 import {toast} from "react-toastify";
+import {FormContainerProps} from "@/components/FormContainer";
 
 const deleteActionMap = {
     subject: deleteSubject,
@@ -38,18 +39,13 @@ const SubjectForm = dynamic(() => import('@/components/forms/SubjectForm'), {
     loading: () => <h1>Loading...</h1>
 });
 
-const forms: { [key: string]: (setOpen: React.Dispatch<React.SetStateAction<boolean>>, type: 'create' | 'update', data?: any) => JSX.Element } = {
-    teacher: (setOpen, type, data) => <TeacherForm setOpen={setOpen} type={type} data={data}/>,
-    student: (setOpen, type, data) => <StudentForm setOpen={setOpen} type={type} data={data}/>,
-    subject: (setOpen, type, data) => <SubjectForm setOpen={setOpen} type={type} data={data}/>,
+const forms: { [key: string]: (setOpen: React.Dispatch<React.SetStateAction<boolean>>, type: 'create' | 'update', data?: any, relatedData?: any) => JSX.Element } = {
+    teacher: (setOpen, type, data, relatedData) => <TeacherForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
+    student: (setOpen, type, data, relatedData) => <StudentForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
+    subject: (setOpen, type, data, relatedData) => <SubjectForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
 }
 
-function FormModal({table, type, data, id}: {
-    table: 'teacher' | 'student' | 'parent' | 'subject' | 'class' | 'lesson' | 'exam' | 'assignment' | 'result' | 'attendance' | 'event' | 'announcement';
-    type: 'create' | 'update' | 'delete';
-    data?: any;
-    id?: number | string;
-}) {
+function FormModal({table, type, data, id, relatedData}: FormContainerProps & { relatedData?: any }) {
     const size = type === 'create' ? 'size-8' : 'size-7';
     const bgColor = type === 'create' ? 'bg-lamaYellow' : type === 'update' ? 'bg-lamaSky' : 'bg-lamaRedLight';
 
@@ -78,13 +74,12 @@ function FormModal({table, type, data, id}: {
     }
 
     const Form = () => {
-        // const [state, formAction, pending] = useActionState(deleteActionMap[table], {success: false, error: false});
-        const [state, formAction, pending] = useActionState(deleteSubject, {success: false, error: false});
+        const [state, formAction, pending] = useActionState(deleteActionMap[table], {success: false, error: false});
         const router = useRouter();
 
         useEffect(() => {
             if (state.success) {
-                toast(`Subject has been deleted!`);
+                toast('Subject has been deleted!');
                 setOpen(false);
                 router.refresh();
             }
@@ -97,7 +92,7 @@ function FormModal({table, type, data, id}: {
                 <button className={'bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center'}>Delete</button>
             </form>
         ) : (type === 'create' || type === 'update') ? (
-            forms[table](setOpen, type, data)
+            forms[table](setOpen, type, data, relatedData)
         ) : (
             'Form not found'
         );
@@ -110,7 +105,7 @@ function FormModal({table, type, data, id}: {
             </button>
             {open && (
                 <div className={'absolute flex items-center justify-center w-screen h-screen left-0 top-0 bg-black bg-opacity-60 z-50'}>
-                    <div className={'relative  w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] bg-white p-4 rounded-md'}>
+                    <div className={'relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] bg-white p-4 rounded-md'}>
                         <Form/>
                         <div className={'absolute top-4 right-4 cursor-pointer'}>
                             <IoClose size={20} onClick={toggleModal}/>

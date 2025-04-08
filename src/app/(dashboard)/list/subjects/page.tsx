@@ -11,6 +11,7 @@ import {Prisma, Subject, Teacher} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
 import getSessionClaims from "@/lib/getSessionClaims";
+import FormContainer from "@/components/FormContainer";
 
 type SubjectList = Subject & { teachers: Teacher[] }
 
@@ -74,10 +75,10 @@ const renderRow = (subject: SubjectList) => {
                     {role === 'admin' && (
                         <>
                             {/** UPDATE */}
-                            <FormModal table={'subject'} type={'update'} data={subject}/>
+                            <FormContainer table={'subject'} type={'update'} data={subject}/>
 
                             {/** DELETE */}
-                            <FormModal table={'subject'} type={'delete'} data={subject} id={id}/>
+                            <FormContainer table={'subject'} type={'delete'} data={subject} id={id}/>
                         </>
                     )}
                 </div>
@@ -136,7 +137,7 @@ async function SubjectsPage({searchParams}: { searchParams: Promise<Record<strin
                             <FaFilter size={12}/>
                         </button>
                         {role === 'admin' && (
-                            <FormModal table={'subject'} type={'create'}/>
+                            <FormContainer table={'subject'} type={'create'}/>
                         )}
                     </div>
                 </div>

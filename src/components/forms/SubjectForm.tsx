@@ -7,7 +7,7 @@ import {createSubject, updateSubject} from "@/lib/actions";
 import {toast} from "react-toastify";
 import {useRouter} from "next/navigation";
 
-function SubjectForm({setOpen, type, data}: { setOpen: React.Dispatch<React.SetStateAction<boolean>>; type: 'create' | 'update'; data?: any; }) {
+function SubjectForm({setOpen, type, data, relatedData}: { setOpen: React.Dispatch<React.SetStateAction<boolean>>; type: 'create' | 'update'; data?: any; relatedData?: any }) {
     const {register, handleSubmit, formState: {errors}} = useForm<SubjectSchema>({
         resolver: zodResolver(subjectSchema),
     });
@@ -30,6 +30,8 @@ function SubjectForm({setOpen, type, data}: { setOpen: React.Dispatch<React.SetS
         }
     }, [router, setOpen, state, type]);
 
+    const {teachers} = relatedData;
+
     return (
         <form className={'flex flex-col gap-8'} onSubmit={onSubmit}>
             <h1 className={'text-xl font-semibold'}>{type === 'create' ? 'Create a new subject' : 'Update subject'}</h1>
@@ -44,18 +46,14 @@ function SubjectForm({setOpen, type, data}: { setOpen: React.Dispatch<React.SetS
             <div className={'flex flex-col w-full md:w-1/4 gap-2'}>
                 <label className="text-xs text-gray-500">Teachers</label>
                 <select multiple className={'ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full'} {...register('teachers')} defaultValue={data?.teachers}>
-                    {/*{teachers.map(
+                    {teachers?.map(
                         (teacher: { id: string; name: string; surname: string }) => (
-                            <option value={teacher.id} key={teacher.id}>
-                                {teacher.name + " " + teacher.surname}
-                            </option>
+                            <option key={teacher.id} value={teacher.id}>{teacher.name} {teacher.surname}</option>
                         )
-                    )}*/}
+                    )}
                 </select>
                 {errors.teachers?.message && (
-                    <p className={'text-xs text-red-400'}>
-                        {errors.teachers.message.toString()}
-                    </p>
+                    <p className={'text-xs text-red-400'}>{errors.teachers.message.toString()}</p>
                 )}
             </div>
 

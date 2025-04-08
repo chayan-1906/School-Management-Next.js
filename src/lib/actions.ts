@@ -11,6 +11,9 @@ export const createSubject = async (currentState: CurrentState, data: SubjectSch
         await prisma.subject.create({
             data: {
                 name: data.name,
+                teachers: {
+                    connect: data.teachers.map((teacherId: string) => ({id: teacherId}))
+                }
             },
         });
 
@@ -31,6 +34,9 @@ export const updateSubject = async (currentState: CurrentState, data: SubjectSch
             },
             data: {
                 name: data.name,
+                teachers: {
+                    set: data.teachers.map((teacherId: string) => ({id: teacherId})),
+                },
             },
         });
 
