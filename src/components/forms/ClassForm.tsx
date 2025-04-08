@@ -7,7 +7,7 @@ import {createClass, updateClass} from "@/lib/actions";
 import {toast} from "react-toastify";
 import {useRouter} from "next/navigation";
 
-function ClassForm({setOpen, type, data, relatedData}: { setOpen: React.Dispatch<React.SetStateAction<boolean>>; type: 'create' | 'update'; data?: any; relatedData?: any }) {
+function ClassForm({setOpen, type, data, relatedData}: { setOpen: React.Dispatch<React.SetStateAction<boolean>>; type: 'create' | 'update'; data?: any; relatedData?: any; }) {
     const {register, handleSubmit, formState: {errors}} = useForm<ClassSchema>({
         resolver: zodResolver(classSchema),
     });

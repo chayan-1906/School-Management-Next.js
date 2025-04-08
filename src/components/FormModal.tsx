@@ -7,7 +7,7 @@ import {FaPlus} from "react-icons/fa";
 import {MdEdit} from "react-icons/md";
 import {IoClose} from "react-icons/io5";
 import dynamic from "next/dynamic";
-import {deleteClass, deleteSubject} from "@/lib/actions";
+import {deleteClass, deleteSubject, deleteTeacher} from "@/lib/actions";
 import {useRouter} from "next/navigation";
 import {toast} from "react-toastify";
 import {FormContainerProps} from "@/components/FormContainer";
@@ -15,7 +15,7 @@ import {FormContainerProps} from "@/components/FormContainer";
 const deleteActionMap = {
     subject: deleteSubject,
     class: deleteClass,
-    teacher: deleteSubject,
+    teacher: deleteTeacher,
     student: deleteSubject,
     exam: deleteSubject,
     parent: deleteSubject,

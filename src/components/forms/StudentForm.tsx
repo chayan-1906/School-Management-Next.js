@@ -17,13 +17,13 @@ const studentSchema = z.object({
     address: z.string().min(1, {message: 'Address is required!'}),
     bloodType: z.string().min(1, {message: 'Blood type is required!'}),
     birthday: z.date({message: 'Birthday is required!'}),
-    sex: z.enum(['male', 'female', 'others'], {message: 'Gender is required!'}),
+    sex: z.enum(['male', 'female', 'other'], {message: 'Gender is required!'}),
     img: z.instanceof(File, {message: 'Image is required!'}),
 });
 
 type Inputs = z.infer<typeof studentSchema>;
 
-function StudentForm({type, data}: { type: 'create' | 'update'; data?: any; }) {
+function StudentForm({setOpen, type, data, relatedData}: { setOpen: React.Dispatch<React.SetStateAction<boolean>>; type: 'create' | 'update'; data?: any; relatedData?: any; }) {
     const {register, handleSubmit, formState: {errors}} = useForm<Inputs>({
         resolver: zodResolver(studentSchema),
     });
@@ -79,7 +79,7 @@ function StudentForm({type, data}: { type: 'create' | 'update'; data?: any; }) {
                     <select className={'ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full'} {...register('sex')} defaultValue={data?.sex}>
                         <option value={'male'}>Male</option>
                         <option value={'female'}>Female</option>
-                        <option value={'others'}>Others</option>
+                        <option value={'other'}>Other</option>
                     </select>
                     {errors.sex?.message && (
                         <p className={'text-xs text-red-500'}>{errors.sex.message.toString()}</p>

@@ -8,12 +8,12 @@ import Image from "next/image";
 import Link from "next/link";
 import {routes} from "@/lib/routes";
 import {WEB_CLIENT_URL} from "@/lib/data";
-import FormModal from "@/components/FormModal";
 import {Class, Prisma, Subject, Teacher} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
 import {isNumeric} from "@/lib/utils";
 import getSessionClaims from "@/lib/getSessionClaims";
+import FormContainer from "@/components/FormContainer";
 
 type TeacherList = Teacher & { subjects: Subject[] } & { classes: Class[] }
 
@@ -109,7 +109,7 @@ const renderRow = (role: string, {id, username, name, img, email, phone, address
 
                     {/** DELETE */}
                     {role === 'admin' && (
-                        <FormModal table={'teacher'} type={'delete'} id={id}/>
+                        <FormContainer table={'teacher'} type={'delete'} id={id}/>
                     )}
                 </div>
             </td>
@@ -177,7 +177,7 @@ async function TeachersPage({searchParams}: { searchParams: Promise<Record<strin
                             <FaFilter size={12}/>
                         </button>
                         {role === 'admin' && (
-                            <FormModal table={'teacher'} type={'create'}/>
+                            <FormContainer table={'teacher'} type={'create'}/>
                         )}
                     </div>
                 </div>

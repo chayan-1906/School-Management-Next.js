@@ -7,7 +7,7 @@ import {createSubject, updateSubject} from "@/lib/actions";
 import {toast} from "react-toastify";
 import {useRouter} from "next/navigation";
 
-function SubjectForm({setOpen, type, data, relatedData}: { setOpen: React.Dispatch<React.SetStateAction<boolean>>; type: 'create' | 'update'; data?: any; relatedData?: any }) {
+function SubjectForm({setOpen, type, data, relatedData}: { setOpen: React.Dispatch<React.SetStateAction<boolean>>; type: 'create' | 'update'; data?: any; relatedData?: any; }) {
     const {register, handleSubmit, formState: {errors}} = useForm<SubjectSchema>({
         resolver: zodResolver(subjectSchema),
     });

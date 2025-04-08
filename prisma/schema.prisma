@@ -16,7 +16,7 @@ model Student {
   id          String       @id
   username    String       @unique
   name        String
-  surname     String
+  surname     String?
   email       String?      @unique
   phone       String?      @unique
   address     String
@@ -39,7 +39,7 @@ model Teacher {
   id        String    @id
   username  String    @unique
   name      String
-  surname   String
+  surname   String?
   email     String?   @unique
   phone     String?   @unique
   address   String
