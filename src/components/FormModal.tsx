@@ -1,20 +1,20 @@
 'use client';
 
-import {cn} from "@/lib/utils";
+import {capitalize, cn} from "@/lib/utils";
 import {FaTrashCan} from "react-icons/fa6";
 import React, {JSX, useActionState, useCallback, useEffect, useState} from "react";
 import {FaPlus} from "react-icons/fa";
 import {MdEdit} from "react-icons/md";
 import {IoClose} from "react-icons/io5";
 import dynamic from "next/dynamic";
-import {deleteSubject} from "@/lib/actions";
+import {deleteClass, deleteSubject} from "@/lib/actions";
 import {useRouter} from "next/navigation";
 import {toast} from "react-toastify";
 import {FormContainerProps} from "@/components/FormContainer";
 
 const deleteActionMap = {
     subject: deleteSubject,
-    class: deleteSubject,
+    class: deleteClass,
     teacher: deleteSubject,
     student: deleteSubject,
     exam: deleteSubject,
@@ -39,10 +39,15 @@ const SubjectForm = dynamic(() => import('@/components/forms/SubjectForm'), {
     loading: () => <h1>Loading...</h1>
 });
 
+const ClassForm = dynamic(() => import('@/components/forms/ClassForm'), {
+    loading: () => <h1>Loading...</h1>
+});
+
 const forms: { [key: string]: (setOpen: React.Dispatch<React.SetStateAction<boolean>>, type: 'create' | 'update', data?: any, relatedData?: any) => JSX.Element } = {
     teacher: (setOpen, type, data, relatedData) => <TeacherForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
     student: (setOpen, type, data, relatedData) => <StudentForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
     subject: (setOpen, type, data, relatedData) => <SubjectForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
+    class: (setOpen, type, data, relatedData) => <ClassForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
 }
 
 function FormModal({table, type, data, id, relatedData}: FormContainerProps & { relatedData?: any }) {
@@ -79,7 +84,7 @@ function FormModal({table, type, data, id, relatedData}: FormContainerProps & { 
 
         useEffect(() => {
             if (state.success) {
-                toast('Subject has been deleted!');
+                toast(`${capitalize(table)} has been deleted!`);
                 setOpen(false);
                 router.refresh();
             }

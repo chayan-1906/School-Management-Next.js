@@ -5,12 +5,12 @@ import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import {WEB_CLIENT_URL} from "@/lib/data";
-import FormModal from "@/components/FormModal";
 import {Class, Grade, Prisma, Teacher} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
 import {isNumeric} from "@/lib/utils";
 import getSessionClaims from "@/lib/getSessionClaims";
+import FormContainer from "@/components/FormContainer";
 
 type ClassList = Class & { supervisor: Teacher } & { grade: Grade };
 
@@ -69,7 +69,9 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = (role: string, {id, name, capacity, grade, supervisor}: ClassList) => {
+const renderRow = (role: string, classs: ClassList) => {
+    const {id, name, capacity, grade, supervisor} = classs;
+
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
             <td className={'flex items-center gap-4 p-4'}>{name}</td>
@@ -79,10 +81,10 @@ const renderRow = (role: string, {id, name, capacity, grade, supervisor}: ClassL
             <td className={['admin'].includes(role) ? 'flex' : 'hidden'}>
                 <div className={'flex items-center gap-2'}>
                     {/** UPDATE */}
-                    <FormModal table={'class'} type={'update'} id={id}/>
+                    <FormContainer table={'class'} type={'update'} data={classs}/>
 
                     {/** DELETE */}
-                    <FormModal table={'class'} type={'delete'} id={id}/>
+                    <FormContainer table={'class'} type={'delete'} id={id}/>
                 </div>
             </td>
         </tr>
@@ -143,7 +145,7 @@ async function ClassesPage({searchParams}: { searchParams: Promise<Record<string
                             <FaFilter size={12}/>
                         </button>
                         {role === 'admin' && (
-                            <FormModal table={'class'} type={'create'}/>
+                            <FormContainer table={'class'} type={'create'}/>
                         )}
                     </div>
                 </div>

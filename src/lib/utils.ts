@@ -16,6 +16,11 @@ export function isNumeric(value: string | number) {
     } else return false;
 }
 
+export function capitalize(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+
 const getLatestMonday = (): Date => {
     const today = new Date();
     const dayOfWeek = today.getDay();

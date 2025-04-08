@@ -36,25 +36,29 @@ function SubjectForm({setOpen, type, data, relatedData}: { setOpen: React.Dispat
         <form className={'flex flex-col gap-8'} onSubmit={onSubmit}>
             <h1 className={'text-xl font-semibold'}>{type === 'create' ? 'Create a new subject' : 'Update subject'}</h1>
 
-            <div className={'flex justify-between flex-wrap gap-4'}>
-                <InputField label={'Subject Name'} register={register} name={'name'} defaultValue={data?.name} error={errors.name}/>
-                {data && (
-                    <InputField label={'ID'} register={register} name={'id'} defaultValue={data?.id} error={errors.id}/>
-                )}
-            </div>
+            <div className={'flex flex-wrap gap-4'}>
+                {/** SUBJECT NAME */}
+                <InputField label={'Subject Name'} register={register} name={'name'} defaultValue={data?.name} error={errors.name} inputProps={{placeholder: 'Enter subject name...'}}/>
 
-            <div className={'flex flex-col w-full md:w-1/4 gap-2'}>
-                <label className="text-xs text-gray-500">Teachers</label>
-                <select multiple className={'ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full'} {...register('teachers')} defaultValue={data?.teachers}>
-                    {teachers?.map(
-                        (teacher: { id: string; name: string; surname: string }) => (
-                            <option key={teacher.id} value={teacher.id}>{teacher.name} {teacher.surname}</option>
-                        )
-                    )}
-                </select>
-                {errors.teachers?.message && (
-                    <p className={'text-xs text-red-400'}>{errors.teachers.message.toString()}</p>
+                {/** SUBJECT ID */}
+                {data && (
+                    <InputField label={'ID'} register={register} name={'id'} defaultValue={data?.id} error={errors.id} hidden={true}/>
                 )}
+
+                {/** TEACHERS SELECT */}
+                <div className={'flex flex-col w-full md:w-1/4 gap-2'}>
+                    <label className={'text-xs text-gray-500'}>Teachers</label>
+                    <select multiple className={'ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full'} {...register('teachers')} defaultValue={data?.teachers}>
+                        {teachers?.map(
+                            (teacher: { id: string; name: string; surname: string; }) => (
+                                <option key={teacher.id} value={teacher.id}>{teacher.name} {teacher.surname}</option>
+                            )
+                        )}
+                    </select>
+                    {errors.teachers?.message && (
+                        <p className={'text-xs text-red-400'}>{errors.teachers.message.toString()}</p>
+                    )}
+                </div>
             </div>
 
             {state.error && (
