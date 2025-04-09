@@ -1,3 +1,5 @@
+'use client';
+
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import InputField from "@/components/InputField";
@@ -16,7 +18,7 @@ function TeacherForm({setOpen, type, data, relatedData}: { setOpen: React.Dispat
     const router = useRouter();
     const [img, setImg] = useState<any>();
 
-    const [state, formAction, pending] = useActionState(type === 'create' ? createTeacher : updateTeacher, {success: false, error: false});
+    const [state, formAction, pending] = useActionState(type === 'create' ? createTeacher : updateTeacher, {success: false, error: false, message: ''});
 
     const onSubmit = handleSubmit((data) => {
         console.log(data);

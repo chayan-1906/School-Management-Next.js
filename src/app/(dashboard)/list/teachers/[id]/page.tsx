@@ -2,7 +2,6 @@ import Image from "next/image";
 import {MdBloodtype, MdEmail} from "react-icons/md";
 import {CiCalendarDate} from "react-icons/ci";
 import {FaPhone} from "react-icons/fa";
-import BigCalendar from "../../../../../components/BigCalendar";
 import Announcements from "../../../../../components/Announcements";
 import Link from "next/link";
 import Performance from "../../../../../components/Performance";
@@ -12,6 +11,7 @@ import {notFound} from "next/navigation";
 import FormContainer from "@/components/FormContainer";
 import getSessionClaims from "@/lib/getSessionClaims";
 import {Teacher} from "@prisma/client";
+import BigCalendarContainer from "@/components/BigCalendarContainer";
 
 async function SingleTeacherPage({params}: { params: Promise<Record<string, string | string[] | undefined>> }) {
     const {role, userId} = await getSessionClaims();
@@ -36,7 +36,7 @@ async function SingleTeacherPage({params}: { params: Promise<Record<string, stri
         return notFound();
     }
 
-    const {img, name, surname, email, phone, birthday, bloodType, _count, } = teacher;
+    const {id, img, name, surname, email, phone, birthday, bloodType, _count, } = teacher;
 
     return (
         <div className={'flex flex-col xl:flex-row flex-1 p-4 gap-4'}>
@@ -121,7 +121,7 @@ async function SingleTeacherPage({params}: { params: Promise<Record<string, stri
                 {/** BOTTOM */}
                 <div className={'mt-4 bg-white rounded-md p-4 h-[800px]'}>
                     <h1>Teacher&apos;s Schedule</h1>
-                    <BigCalendar/>
+                    <BigCalendarContainer id={id} type={'teacherId'}/>
                 </div>
             </div>
 
