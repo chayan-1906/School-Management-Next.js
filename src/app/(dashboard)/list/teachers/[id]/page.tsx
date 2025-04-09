@@ -36,7 +36,7 @@ async function SingleTeacherPage({params}: { params: Promise<Record<string, stri
         return notFound();
     }
 
-    const {id, img, name, surname, email, phone, birthday, bloodType, _count, } = teacher;
+    const {id, img, name, surname, email, phone, birthday, bloodType, _count} = teacher;
 
     return (
         <div className={'flex flex-col xl:flex-row flex-1 p-4 gap-4'}>
