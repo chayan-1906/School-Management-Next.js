@@ -6,7 +6,6 @@ import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import {isNumeric} from "@/lib/utils";
 import {role, WEB_CLIENT_URL} from "@/lib/data";
-import FormModal from "@/components/FormModal";
 import {Prisma, Subject, Teacher} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";

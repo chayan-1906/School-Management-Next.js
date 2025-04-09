@@ -3,7 +3,7 @@
 import {ITEMS_PER_PAGE} from "@/lib/config";
 import {cn} from "@/lib/utils";
 import {useRouter} from "next/navigation";
-import {useCallback, useEffect} from "react";
+import {useCallback} from "react";
 
 function Pagination({page, count}: { page: number; count: number; }) {
     const router = useRouter();

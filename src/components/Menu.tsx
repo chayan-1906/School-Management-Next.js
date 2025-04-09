@@ -1,5 +1,4 @@
 import Image from "next/image";
-import {role} from "@/lib/data";
 import Link from "next/link";
 import {routes} from "@/lib/routes";
 import {currentUser} from "@clerk/nextjs/server";

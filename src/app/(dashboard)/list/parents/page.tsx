@@ -5,7 +5,7 @@ import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import {isNumeric} from "@/lib/utils";
-import {role, WEB_CLIENT_URL} from "@/lib/data";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import {Parent, Prisma, Student} from "@prisma/client";
 import prisma from "@/lib/prisma";

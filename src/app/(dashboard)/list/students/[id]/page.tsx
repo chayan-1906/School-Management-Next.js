@@ -13,6 +13,7 @@ import {notFound} from "next/navigation";
 import {routes} from "@/lib/routes";
 import {Suspense} from "react";
 import StudentAttendanceCard from "@/components/StudentAttendanceCard";
+import FormContainer from "@/components/FormContainer";
 
 async function SingleStudentPage({params}: { params: Promise<Record<string, string | string[] | undefined>> }) {
     const {role, userId} = await getSessionClaims();
@@ -41,7 +42,12 @@ async function SingleStudentPage({params}: { params: Promise<Record<string, stri
                     <div className={'flex-1 flex gap-4 py-6 px-4 rounded-md bg-lamaSky'}>
                         <Image src={img || '/noAvatar.png'} alt={'student-profile-picture'} height={144} width={144} className={'size-36 rounded-full object-cover'}/>
                         <div className={'w-2/3 flex flex-col justify-between gap-4'}>
-                            <h1 className={'text-xl font-semibold'}>{name} {surname}</h1>
+                            <div className={'flex items-center gap-4'}>
+                                <h1 className={'text-xl font-semibold'}>{name} {surname}</h1>
+                                {role === 'admin' && (
+                                    <FormContainer table={'student'} type={'update'} data={student}/>
+                                )}
+                            </div>
                             <p className={'text-sm text-gray-500 text-justify'}>
                                 A dedicated and curious student, actively engaged in learning, participating in activities, and striving for academic and personal growth.
                             </p>

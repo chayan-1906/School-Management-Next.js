@@ -4,7 +4,7 @@ import {FaFilter} from "react-icons/fa";
 import {RiSortAlphabetAsc} from "react-icons/ri";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
-import {role, WEB_CLIENT_URL} from "@/lib/data";
+import {WEB_CLIENT_URL} from "@/lib/data";
 import FormModal from "@/components/FormModal";
 import prisma from "@/lib/prisma";
 import {Class, Lesson, Prisma, Subject, Teacher} from "@prisma/client";

@@ -1,6 +1,6 @@
 'use client';
 
-import {BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import {FiMoreHorizontal} from "react-icons/fi";
 
 const data = [

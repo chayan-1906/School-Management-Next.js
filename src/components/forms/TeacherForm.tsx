@@ -1,5 +1,3 @@
-'use client';
-
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import InputField from "@/components/InputField";
@@ -66,7 +64,9 @@ function TeacherForm({setOpen, type, data, relatedData}: { setOpen: React.Dispat
             </div>
             <div className={'flex justify-between flex-wrap gap-4'}>
                 {/** ID */}
-                <InputField label={'ID'} register={register} name={'id'} defaultValue={data?.id} error={errors.id} hidden/>
+                {data && (
+                    <InputField label={'ID'} register={register} name={'id'} defaultValue={data?.id} error={errors.id} hidden/>
+                )}
 
                 {/** FIRST NAME */}
                 <InputField label={'First Name'} register={register} name={'name'} defaultValue={data?.name} error={errors.name}/>
@@ -119,8 +119,8 @@ function TeacherForm({setOpen, type, data, relatedData}: { setOpen: React.Dispat
                     {({open}) => {
                         return (
                             <div className={'flex items-center gap-2 cursor-pointer ring-[1.5px] ring-gray-300 rounded-md p-2 text-xs text-gray-500'} onClick={() => open()}>
-                                <Image src={img?.secure_url || '/upload.png'} alt={'upload-image'} height={28} width={28}/>
-                                <span>Upload a photo</span>
+                                <Image src={data?.img || img?.secure_url || '/upload.png'} alt={'upload-image'} height={1000} width={1000} className={'size-20'}/>
+                                {!(data?.img || img?.secure_url) && <span>Upload a photo</span>}
                             </div>
                         );
                     }}

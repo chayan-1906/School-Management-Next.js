@@ -1,6 +1,6 @@
 'use server';
 
-import {ClassSchema, SubjectSchema, TeacherSchema} from "@/lib/formValidationSchemas";
+import {ClassSchema, StudentSchema, SubjectSchema, TeacherSchema} from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import {clerkClient} from "@clerk/nextjs/server";
 
@@ -143,7 +143,7 @@ export const createTeacher = async (currentState: CurrentState, data: TeacherSch
                 },
             });
         } catch (error: any) {
-            if (error.errors.isNotEmpty && error.errors[0].code === 'form_identifier_exists') {
+            if (error.errors?.isNotEmpty && error.errors[0].code === 'form_identifier_exists') {
                 return {success: false, error: true, message: 'Username already exists'};
             }
             console.error('error in creating clerk user:', JSON.stringify(error.errors, null, 2));
@@ -201,16 +201,119 @@ export const deleteTeacher = async (currentState: CurrentState, data: FormData) 
     console.log(data, 'in deleteTeacher server action');
     const id = data.get('id') as string;
     try {
+        const client = await clerkClient();
+        await client.users.deleteUser(id);
         await prisma.teacher.delete({
-            where: {
-                id,
-            },
+            where: {id},
         });
 
         // revalidatePath(routes.teachersPath({}));
         return {success: true, error: false};
     } catch (error) {
         console.error('error in deleteTeacher:', error);
+        return {success: false, error: true};
+    }
+}
+
+/** STUDENT */
+export const createStudent = async (currentState: CurrentState, data: StudentSchema) => {
+    console.log(data, 'in createStudent server action');
+
+    try {
+        const client = await clerkClient();
+        const {username, email, password, name, surname, phone, address, img, bloodType, sex, birthday, classId, gradeId, parentId} = data || {};
+        const classItem = await prisma.class.findUnique({
+            where: {id: classId},
+            include: {_count: {select: {students: true}}},
+        });
+
+        if (classItem && classItem.capacity === classItem._count.students) {
+            return {success: false, error: true, message: 'Class is full'};
+        }
+
+        try {
+            const user = await client.users.createUser({
+                username, password,
+                emailAddress: [email ?? ''],
+                firstName: name,
+                lastName: surname,
+                publicMetadata: {role: 'student'},
+            });
+            console.log('clerk user created ✅✅')
+
+            await prisma.student.create({
+                data: {
+                    id: user.id, username, name, surname, email, phone, address, img, bloodType, sex, birthday, classId, gradeId, parentId,
+                },
+            });
+            console.log('student created ✅✅')
+        } catch (error: any) {
+            if (error.errors?.isNotEmpty && error.errors[0].code === 'form_identifier_exists') {
+                return {success: false, error: true, message: 'Username already exists'};
+            }
+            console.error('error in creating clerk user:', JSON.stringify(error.errors, null, 2));
+        }
+
+        /*const user = await client.users.createUser({
+            username: 'test',
+            password: 'testtesttest',
+            emailAddress: ['test@gmail.com'],
+        });*/
+
+        // revalidatePath(routes.studentsPath({}));
+        return {success: true, error: false, message: ''};
+    } catch (error) {
+        console.error('error in createStudent:', error);
+        return {success: false, error: true, message: ''};
+    }
+}
+
+export const updateStudent = async (currentState: CurrentState, data: StudentSchema) => {
+    console.log(data, 'in updateStudent server action');
+    try {
+        const client = await clerkClient();
+        const {id, username, email, password, name, surname, phone, address, img, bloodType, sex, birthday, classId, gradeId, parentId} = data || {};
+        if (!id) {
+            return {success: true, error: false, message: 'No user found!'};
+        }
+        const user = await client.users.updateUser(id, {
+            username,
+            ...(password !== '' && {password}),
+            firstName: name,
+            lastName: surname,
+            // publicMetadata: {role: 'student'},
+        });
+
+        await prisma.student.update({
+            where: {id},
+            data: {
+                ...(password !== '' && {password}),
+                username, name, surname, email, phone, address, img, bloodType, sex, birthday, classId, gradeId, parentId,
+            },
+        });
+
+        // revalidatePath(routes.studentsPath({}));
+        return {success: true, error: false, message: ''};
+    } catch (error) {
+        console.error('error in updateStudent:', error);
+        return {success: false, error: true, message: ''};
+    }
+}
+
+export const deleteStudent = async (currentState: CurrentState, data: FormData) => {
+    console.log(data, 'in deleteStudent server action');
+    const id = data.get('id') as string;
+    try {
+        const client = await clerkClient();
+        await client.users.deleteUser(id);
+        await prisma.student.delete({
+            where: {id},
+        });
+
+        // revalidatePath(routes.studentsPath({}));
+        return {success: true, error: false};
+    } catch (error) {
+        console.error('error in deleteStudent:', error);
         return {success: false, error: true};
     }
 }
