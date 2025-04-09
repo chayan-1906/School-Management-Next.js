@@ -63,6 +63,9 @@ function TeacherForm({setOpen, type, data, relatedData}: { setOpen: React.Dispat
                 <hr className={'flex-1'}/>
             </div>
             <div className={'flex justify-between flex-wrap gap-4'}>
+                {/** ID */}
+                <InputField label={'ID'} register={register} name={'id'} defaultValue={data?.id} error={errors.id} hidden/>
+
                 {/** FIRST NAME */}
                 <InputField label={'First Name'} register={register} name={'name'} defaultValue={data?.name} error={errors.name}/>
 
@@ -79,7 +82,7 @@ function TeacherForm({setOpen, type, data, relatedData}: { setOpen: React.Dispat
                 <InputField label={'Blood Type'} register={register} name={'bloodType'} defaultValue={data?.bloodType} error={errors.bloodType}/>
 
                 {/** BIRTHDAY */}
-                <InputField label={'Birthday'} register={register} name={'birthday'} type={'date'} defaultValue={data?.birthday} error={errors.birthday}/>
+                <InputField label={'Birthday'} register={register} name={'birthday'} type={'date'} defaultValue={data?.birthday.toISOString().split('T')[0]} error={errors.birthday}/>
 
                 {/** GENDER */}
                 <div className={'flex flex-col gap-2 w-full md:w-1/4'}>

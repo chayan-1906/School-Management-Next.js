@@ -6,10 +6,38 @@ import BigCalendar from "../../../../../components/BigCalendar";
 import Announcements from "../../../../../components/Announcements";
 import Link from "next/link";
 import Performance from "../../../../../components/Performance";
-import {routes} from "../../../../../lib/routes";
-import FormModal from "../../../../../components/FormModal";
+import {routes} from "@/lib/routes";
+import prisma from "@/lib/prisma";
+import {notFound} from "next/navigation";
+import FormContainer from "@/components/FormContainer";
+import getSessionClaims from "@/lib/getSessionClaims";
+import {Teacher} from "@prisma/client";
 
-function SingleTeacherPage() {
+async function SingleTeacherPage({params}: { params: Promise<Record<string, string | string[] | undefined>> }) {
+    const {role, userId} = await getSessionClaims();
+
+    const {id: rawTeacherId} = await params || {};
+    const teacherId = Array.isArray(rawTeacherId) ? rawTeacherId[0] : rawTeacherId;
+
+    const teacher: (Teacher & { _count: { subjects: number; lessons: number; classes: number; } }) | null = await prisma.teacher.findUnique({
+        where: {id: teacherId},
+        include: {
+            _count: {
+                select: {
+                    subjects: true,
+                    lessons: true,
+                    classes: true,
+                },
+            },
+        },
+    });
+
+    if (!teacher) {
+        return notFound();
+    }
+
+    const {img, name, surname, email, phone, birthday, bloodType, _count, } = teacher;
+
     return (
         <div className={'flex flex-col xl:flex-row flex-1 p-4 gap-4'}>
             {/** TOP */}
@@ -18,26 +46,13 @@ function SingleTeacherPage() {
                 <div className={'flex flex-col lg:flex-row gap-4'}>
                     {/** USER INFO CARD */}
                     <div className={'flex-1 flex gap-4 py-6 px-4 rounded-md bg-lamaSky'}>
-                        {/*<div className={'w-1/3'}>*/}
-                            <Image src={'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg'} alt={'teacher-profile-picture'} height={144} width={144} className={'size-36 rounded-full object-cover'}/>
-                        {/*</div>*/}
+                        <Image src={img || '/noAvatar.png'} alt={'teacher-profile-picture'} height={144} width={144} className={'size-36 rounded-full object-cover'}/>
                         <div className={'w-2/3 flex flex-col justify-between gap-4'}>
                             <div className={'flex items-center gap-4'}>
-                                <h1 className={'text-xl font-semibold'}>Leonard Snyder</h1>
-                                <FormModal table={'teacher'} type={'update'} data={{
-                                    id: 1,
-                                    username: 'deanguerrero',
-                                    email: 'deanguerrero@gmail.com',
-                                    password: 'password',
-                                    firstName: 'Dean',
-                                    lastName: 'Guerrero',
-                                    phone: '+1 234 567 89',
-                                    address: '1234 Main St, Anytown, USA',
-                                    bloodType: 'A+',
-                                    dateOfBirth: '2000-01-01',
-                                    sex: 'male',
-                                    img: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=1200',
-                                }}/>
+                                <h1 className={'text-xl font-semibold'}>{name} {surname}</h1>
+                                {role === 'admin' && (
+                                    <FormContainer table={'teacher'} type={'update'} data={teacher}/>
+                                )}
                             </div>
                             <p className={'text-sm text-gray-500 text-justify'}>
                                 A dedicated educator who inspires curiosity and fosters a supportive learning environment, helping students reach their full potential.
@@ -45,19 +60,19 @@ function SingleTeacherPage() {
                             <div className={'flex flex-wrap items-center justify-between gap-2 text-sm font-medium'}>
                                 <div className={'w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2 overflow-ellipsis'}>
                                     <MdBloodtype size={20} className={'flex-shrink-0'}/>
-                                    <span>A+</span>
+                                    <span>{bloodType}</span>
                                 </div>
                                 <div className={'w-full md:w-1/3 lg:w-full 2xl:w-1/2 flex items-center gap-2 overflow-ellipsis'}>
                                     <CiCalendarDate size={20} className={'flex-shrink-0'}/>
-                                    <span>January 2025</span>
+                                    <span>{new Intl.DateTimeFormat('en-GB').format(birthday)}</span>
                                 </div>
-                                <div className={'w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2 overflow-ellipsis'}>
+                                <div className={'w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2'}>
                                     <MdEmail size={20} className={'flex-shrink-0'}/>
-                                    <span className={'w-full overflow-hidden text-ellipsis'}>leonard.snyder@oakwood.com</span>
+                                    <span className={'w-full overflow-clip'}>{email}</span>
                                 </div>
                                 <div className={'w-full md:w-1/3 lg:w-full 2xl:w-1/2 flex items-center gap-2 overflow-ellipsis'}>
                                     <FaPhone size={16} className={'flex-shrink-0'}/>
-                                    <span>+1 (234)-567-8901</span>
+                                    <span>{phone}</span>
                                 </div>
                             </div>
                         </div>
@@ -78,7 +93,7 @@ function SingleTeacherPage() {
                         <div className={'bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]'}>
                             <Image src={'/singleBranch.png'} alt={''} width={24} height={24} className={'size-6'}/>
                             <div className={''}>
-                                <h1 className={'text-xl font-semibold'}>2</h1>
+                                <h1 className={'text-xl font-semibold'}>{_count.subjects}</h1>
                                 <span className={'text-sm text-gray-400'}>Branches</span>
                             </div>
                         </div>
@@ -87,7 +102,7 @@ function SingleTeacherPage() {
                         <div className={'bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]'}>
                             <Image src={'/singleClass.png'} alt={''} width={24} height={24} className={'size-6'}/>
                             <div className={''}>
-                                <h1 className={'text-xl font-semibold'}>6</h1>
+                                <h1 className={'text-xl font-semibold'}>{_count.lessons}</h1>
                                 <span className={'text-sm text-gray-400'}>Lessons</span>
                             </div>
                         </div>
@@ -96,7 +111,7 @@ function SingleTeacherPage() {
                         <div className={'bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]'}>
                             <Image src={'/singleClass.png'} alt={''} width={24} height={24} className={'size-6'}/>
                             <div className={''}>
-                                <h1 className={'text-xl font-semibold'}>6</h1>
+                                <h1 className={'text-xl font-semibold'}>{_count.classes}</h1>
                                 <span className={'text-sm text-gray-400'}>Classes</span>
                             </div>
                         </div>

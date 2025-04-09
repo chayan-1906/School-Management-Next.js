@@ -166,11 +166,27 @@ export const createTeacher = async (currentState: CurrentState, data: TeacherSch
 export const updateTeacher = async (currentState: CurrentState, data: TeacherSchema) => {
     console.log(data, 'in updateTeacher server action');
     try {
+        const client = await clerkClient();
+        const {id, username, email, password, name, surname, phone, address, img, bloodType, sex, birthday, subjects} = data || {};
+        if (!id) {
+            return {success: true, error: false, message: 'No user found!'};
+        }
+        const user = await client.users.updateUser(id, {
+            username,
+            ...(password !== '' && {password}),
+            firstName: name,
+            lastName: surname,
+            // publicMetadata: {role: 'teacher'},
+        });
+
         await prisma.teacher.update({
-            where: {
-                id: data.id,
+            where: {id},
+            data: {
+                ...(password !== '' && {password}),
+                username, name, surname, email, phone, address, img, bloodType, sex, birthday, subjects: {
+                    connect: subjects?.map((subjectId: string) => ({id: parseInt(subjectId)})),
+                },
             },
-            data,
         });
 
         // revalidatePath(routes.teachersPath({}));
@@ -187,7 +203,7 @@ export const deleteTeacher = async (currentState: CurrentState, data: FormData) 
     try {
         await prisma.teacher.delete({
             where: {
-                id: parseInt(id),
+                id,
             },
         });
 
