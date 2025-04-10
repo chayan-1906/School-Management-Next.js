@@ -7,7 +7,7 @@ import {FaPlus} from "react-icons/fa";
 import {MdEdit} from "react-icons/md";
 import {IoClose} from "react-icons/io5";
 import dynamic from "next/dynamic";
-import {deleteClass, deleteStudent, deleteSubject, deleteTeacher} from "@/lib/actions";
+import {deleteClass, deleteExam, deleteStudent, deleteSubject, deleteTeacher} from "@/lib/actions";
 import {useRouter} from "next/navigation";
 import {toast} from "react-toastify";
 import {FormContainerProps} from "@/components/FormContainer";
@@ -17,7 +17,7 @@ const deleteActionMap = {
     class: deleteClass,
     teacher: deleteTeacher,
     student: deleteStudent,
-    exam: deleteSubject,
+    exam: deleteExam,
     parent: deleteSubject,
     lesson: deleteSubject,
     assignment: deleteSubject,
@@ -43,11 +43,16 @@ const ClassForm = dynamic(() => import('@/components/forms/ClassForm'), {
     loading: () => <h1>Loading...</h1>
 });
 
+const ExamForm = dynamic(() => import('@/components/forms/ExamForm'), {
+    loading: () => <h1>Loading...</h1>
+});
+
 const forms: { [key: string]: (setOpen: React.Dispatch<React.SetStateAction<boolean>>, type: 'create' | 'update', data?: any, relatedData?: any) => JSX.Element } = {
     teacher: (setOpen, type, data, relatedData) => <TeacherForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
     student: (setOpen, type, data, relatedData) => <StudentForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
     subject: (setOpen, type, data, relatedData) => <SubjectForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
     class: (setOpen, type, data, relatedData) => <ClassForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
+    exam: (setOpen, type, data, relatedData) => <ExamForm setOpen={setOpen} type={type} data={data} relatedData={relatedData}/>,
 }
 
 function FormModal({table, type, data, id, relatedData}: FormContainerProps & { relatedData?: any }) {

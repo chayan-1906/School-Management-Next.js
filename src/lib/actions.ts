@@ -1,8 +1,9 @@
 'use server';
 
-import {ClassSchema, StudentSchema, SubjectSchema, TeacherSchema} from "@/lib/formValidationSchemas";
+import {ClassSchema, ExamSchema, StudentSchema, SubjectSchema, TeacherSchema} from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import {clerkClient} from "@clerk/nextjs/server";
+import getSessionClaims from "@/lib/getSessionClaims";
 
 type CurrentState = { success: boolean, error: boolean; message?: string | undefined; };
 
@@ -314,6 +315,116 @@ export const deleteStudent = async (currentState: CurrentState, data: FormData) 
         return {success: true, error: false};
     } catch (error) {
         console.error('error in deleteStudent:', error);
+        return {success: false, error: true};
+    }
+}
+
+/** EXAM */
+export const createExam = async (currentState: CurrentState, data: ExamSchema) => {
+    console.log(data, 'in createExam server action');
+
+    const {role, userId} = await getSessionClaims();
+
+    try {
+        if (role === 'teacher') {
+            const teacherLesson = await prisma.lesson.findFirst({
+                where: {
+                    teacherId: userId,
+                    id: data.lessonId,
+                },
+            });
+
+            if (!teacherLesson) {
+                return {success: false, error: true};
+            }
+        }
+
+        const {id, title, startTime, endTime, lessonId} = data;
+
+        await prisma.exam.create({
+            data: {
+                title,
+                startTime: new Date(startTime).toISOString(),
+                endTime: new Date(endTime).toISOString(),
+                lessonId,
+            },
+        });
+
+        // revalidatePath(routes.examsPath({}));
+        return {success: true, error: false};
+    } catch (error) {
+        console.error('error in createExam:', error);
+        return {success: false, error: true};
+    }
+}
+
+export const updateExam = async (currentState: CurrentState, data: ExamSchema) => {
+    console.log(data, 'in updateExam server action');
+
+    const {role, userId} = await getSessionClaims();
+
+    try {
+        if (role === 'teacher') {
+            const teacherLesson = await prisma.lesson.findFirst({
+                where: {
+                    teacherId: userId,
+                    id: data.lessonId,
+                },
+            });
+
+            if (!teacherLesson) {
+                return {success: false, error: true};
+            }
+        }
+        const teacherLesson = await prisma.lesson.findFirst({
+            where: {
+                teacherId: userId,
+                id: data.lessonId,
+            },
+        });
+
+        if (!teacherLesson) {
+            return {success: false, error: true};
+        }
+
+        const {id, title, startTime, endTime, lessonId} = data;
+
+        await prisma.exam.update({
+            where: {id},
+            data: {
+                title,
+                startTime: new Date(startTime).toISOString(),
+                endTime: new Date(endTime).toISOString(),
+                lessonId,
+            },
+        });
+
+        // revalidatePath(routes.examsPath({}));
+        return {success: true, error: false};
+    } catch (error) {
+        console.error('error in updateExam:', error);
+        return {success: false, error: true};
+    }
+}
+
+export const deleteExam = async (currentState: CurrentState, data: FormData) => {
+    console.log(data, 'in deleteExam server action');
+
+    const {role, userId} = await getSessionClaims();
+
+    const id = data.get('id') as string;
+    try {
+        await prisma.exam.delete({
+            where: {
+                id: parseInt(id),
+                ...(role === 'teacher' ? {lesson: {teacherId: userId}} : {}),
+            },
+        });
+
+        // revalidatePath(routes.examsPath({}));
+        return {success: true, error: false};
+    } catch (error) {
+        console.error('error in deleteExam:', error);
         return {success: false, error: true};
     }
 }

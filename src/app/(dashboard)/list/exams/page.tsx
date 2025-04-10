@@ -6,15 +6,20 @@ import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import {isNumeric} from "@/lib/utils";
 import {WEB_CLIENT_URL} from "@/lib/data";
-import FormModal from "@/components/FormModal";
 import {Class, Exam, Prisma, Subject, Teacher} from "@prisma/client";
 import prisma from "@/lib/prisma";
 import {ITEMS_PER_PAGE} from "@/lib/config";
 import getSessionClaims from "@/lib/getSessionClaims";
+import FormContainer from "@/components/FormContainer";
 
 type ExamList = Exam & { lesson: { subject: Subject, class: Class, teacher: Teacher } };
 
 const columns = ({role}: { role: string }) => [
+    {
+        header: 'Exam',
+        accessor: 'exam',
+        className: 'px-4',
+    },
     {
         header: 'Subject',
         accessor: 'subject',
@@ -22,14 +27,20 @@ const columns = ({role}: { role: string }) => [
     {
         header: 'Class',
         accessor: 'class',
+        className: 'hidden lg:table-cell',
     },
     {
         header: 'Teacher',
         accessor: 'teacher',
+        className: 'hidden xl:table-cell',
+    },
+    {
+        header: 'Start Time',
+        accessor: 'date',
         className: 'hidden md:table-cell',
     },
     {
-        header: 'Date',
+        header: 'End Time',
         accessor: 'date',
         className: 'hidden md:table-cell',
     },
@@ -69,20 +80,26 @@ export async function generateMetadata() {
     return metadata;
 }
 
-const renderRow = (role: string, {id, lesson: {subject, class: examOfClass, teacher}, startTime}: ExamList) => {
+const renderRow = (role: string, exam: ExamList) => {
+    const {id, title, lesson: {subject, class: examOfClass, teacher}, startTime, endTime} = exam;
+    exam.startTime = new Date(new Date(exam.startTime).getTime() - new Date().getTimezoneOffset() * 6e4);   // converted to local
+    exam.endTime = new Date(new Date(exam.endTime).getTime() - new Date().getTimezoneOffset() * 6e4);   // converted to local
+
     return (
         <tr key={id} className={'border-b border-gray-200 even:bg-slate-200 text-sm hover:bg-lamaPurpleLight'}>
-            <td className={'flex items-center gap-4 p-4'}>{subject.name}</td>
-            <td className={''}>{examOfClass.name}</td>
-            <td className={'hidden md:table-cell'}>{teacher.name} {teacher.surname}</td>
-            <td className={'hidden md:table-cell'}>{new Intl.DateTimeFormat('en-US').format(startTime)}</td>
+            <td className={'flex items-center gap-4 p-4'}>{title}</td>
+            <td className={''}>{subject.name}</td>
+            <td className={'hidden lg:table-cell'}>{examOfClass.name}</td>
+            <td className={'hidden xl:table-cell'}>{teacher.name} {teacher.surname}</td>
+            <td className={'hidden md:table-cell'}>{new Intl.DateTimeFormat('en-GB', {dateStyle: 'short', timeStyle: 'short', hour12: true}).format(startTime)}</td>
+            <td className={'hidden md:table-cell'}>{new Intl.DateTimeFormat('en-GB', {dateStyle: 'short', timeStyle: 'short', hour12: true}).format(endTime)}</td>
             <td className={['admin', 'teacher'].includes(role) ? 'flex' : 'hidden'}>
                 <div className={'flex items-center gap-2'}>
                     {/** UPDATE */}
-                    <FormModal table={'exam'} type={'update'} id={id}/>
+                    <FormContainer table={'exam'} type={'update'} data={exam}/>
 
                     {/** DELETE */}
-                    <FormModal table={'exam'} type={'delete'} id={id}/>
+                    <FormContainer table={'exam'} type={'delete'} id={id}/>
                 </div>
             </td>
         </tr>
@@ -182,7 +199,7 @@ async function ExamsPage({searchParams}: { searchParams: Promise<Record<string, 
                             <FaFilter size={12}/>
                         </button>
                         {['admin', 'teacher'].includes(role) && (
-                            <FormModal table={'exam'} type={'create'}/>
+                            <FormContainer table={'exam'} type={'create'}/>
                         )}
                     </div>
                 </div>
